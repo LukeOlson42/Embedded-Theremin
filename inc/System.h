@@ -23,9 +23,12 @@ typedef enum MenuState {
 typedef struct System {
     struct Speaker {
         MusicalNote Key;
-        float SpeakerVolume;
         MusicalNote CurrentNote;
-        float TuningOffset;
+        // float TuningOffset;
+
+        float SpeakerVolume;
+        float SensorPeriod;
+        uint8_t SensorDistanceInches;
     } Speaker;
 
     struct RTC {
@@ -43,6 +46,10 @@ typedef struct System {
         } Time;
     } RTC;
 
+    struct Flags {
+        bool CalculateDistance;
+    } Flags;
+
     float Temperature;
 
     MenuState Menu;
@@ -51,10 +58,7 @@ typedef struct System {
 
 extern System Theremin;
 
-
-// extern ANYTHING USED ANYWHERE
-
-void TestFunction();
+void GlobalSystemInit();
 
 
 #endif

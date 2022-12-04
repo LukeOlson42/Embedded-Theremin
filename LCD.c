@@ -52,7 +52,7 @@ void Clock_Init48MHz(void)
     CS->CTL1 = CS->CTL1 & ~(CS_CTL1_SELM_MASK | CS_CTL1_DIVM_MASK | CS_CTL1_SELS_MASK | // sets MCLK to 48MHz
                             CS_CTL1_DIVHS_MASK) | CS_CTL1_SELM__HFXTCLK | CS_CTL1_SELS__HFXTCLK;
 
-    CS->CTL1 = CS->CTL1 | 0x20000000;    // sets SMCLK to 12 MHZ
+    CS->CTL1 = CS->CTL1 | 0x40000000;    // sets SMCLK to 3 MHZ
 
     CS->KEY = 0; 
 }
@@ -61,4 +61,15 @@ void LCDInit(void)
 {
     Clock_Init48MHz();
     ST7735_InitR(INITR_REDTAB);
+}
+
+void DrawMenuOptions()
+{
+    for(uint8_t i = 0; i < MAX_MENU_OPTIONS; i++)
+    {
+        if(!MenuOptionsTable->MenuOptions[i])
+        {
+            DrawString(0, i, MenuOptionsTable->MenuOptions[i], 0xffff, 0x0000, 1);
+        }
+    }
 }
