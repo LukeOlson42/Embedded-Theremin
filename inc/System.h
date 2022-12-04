@@ -1,7 +1,7 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
-#include <stdint.h>
+#include "config.h"
 
 typedef enum MusicalNote {
     A, Bb, B, C, Db, D, Eb, E, F, Gb, G, Ab
@@ -16,6 +16,10 @@ typedef enum MonthOfYear {
     July, August, September, October, November, December
 } MonthOfYear;
 
+typedef enum MenuState {
+    Main, DateChange, TimeChange, KeyChange
+} MenuState;
+
 typedef struct System {
     struct Speaker {
         MusicalNote Key;
@@ -23,8 +27,6 @@ typedef struct System {
         MusicalNote CurrentNote;
         float TuningOffset;
     } Speaker;
-
-    float Temperature;
 
     struct RTC {
         struct CalendarDate{
@@ -40,6 +42,10 @@ typedef struct System {
             uint8_t Second;
         } Time;
     } RTC;
+
+    float Temperature;
+
+    MenuState Menu;
 
 } System;
 

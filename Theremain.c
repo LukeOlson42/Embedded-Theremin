@@ -1,14 +1,13 @@
 #include "inc/System.h"
+#include "inc/LCD.h"
 
 
-
+void ThereminInit(void);
 
 int main(void)
 {
 
-    TestFunction();
-
-
+    ThereminInit();
 
     for(;;)
     {
@@ -28,4 +27,10 @@ int main(void)
 
 
     return 0;
+}
+
+void ThereminInit(void)
+{
+    LCDInit();
+    
 }
