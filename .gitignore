@@ -50,3 +50,11 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+
+# custom added files
+bruh.txt
+/.vscode
+/bin
+/output
+/src
