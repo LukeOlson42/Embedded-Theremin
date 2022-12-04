@@ -70,6 +70,13 @@ void LCDInit(void)
     ST7735_InitR(INITR_REDTAB);
 }
 
+
+void DrawMenuStructure(void)
+{
+    ST7735_DrawFastHLine(0, 80, ST7735_TFTWIDTH, 0xffff);
+}
+
+
 void DrawMenuOptions(MenuState menu)
 {
     char OptionStringHeader[3] = "1)";
@@ -82,8 +89,8 @@ void DrawMenuOptions(MenuState menu)
             {
                 if(MenuOptionsTable[i].MenuOptions[j] != NULL)
                 {
-                    DrawString(0, j, OptionStringHeader, 0xffff, 0x0000, 1);
-                    DrawString(4, j, MenuOptionsTable[i].MenuOptions[j], 0xffff, 0x0000, 1);
+                    DrawString(0, j + MENU_Y_OFFSET, OptionStringHeader, 0xffff, 0x0000, 1);
+                    DrawString(4, j + MENU_Y_OFFSET, MenuOptionsTable[i].MenuOptions[j], 0xffff, 0x0000, 1);
                     OptionStringHeader[0]++;
                 }
             }
@@ -102,4 +109,9 @@ MenuState FindNextMenu(MenuState menu, uint8_t selection)
     }
 
     return NullMenu;
+}
+
+void ClearMenu(void)
+{
+
 }

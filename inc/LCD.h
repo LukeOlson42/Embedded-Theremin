@@ -50,7 +50,7 @@ void LCDInit();
 void DrawString(uint8_t x, uint8_t y, char *buf, uint16_t textColor, uint16_t bkgColor, uint8_t size);
 void Clock_Init48MHz(void);
 
-
+void DrawMenuStructure(void);
 void DrawMenuOptions(MenuState menu);
 MenuState FindNextMenu(MenuState menu, uint8_t selection);
 

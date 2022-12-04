@@ -61,8 +61,6 @@ void PORT3_IRQHandler(void)
 {
     if(P3->IFG & BIT5)
     {
-        P1->OUT ^= BIT0;
-
         if(P3->IES & BIT5)
         {
             if(P3->IN & BIT6)

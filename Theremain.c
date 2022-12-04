@@ -70,5 +70,6 @@ void ThereminInit(void)
     KeypadInit();
     KnobInit();
 
+    DrawMenuStructure();
     DrawMenuOptions(Main);
 }

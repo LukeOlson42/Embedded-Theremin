@@ -48,46 +48,39 @@ void OutputPitch()
             TIMER_A2->CCR[0] = 0;
             break;
 
-        case 1:
-        case 2:
+        case 3:
             TIMER_A2->CCR[0] = 3000 * 1.f / 233 * 1000;
             break;
 
-        case 3:
         case 4:
             TIMER_A2->CCR[0] = 3000 * 1.f / 262 * 1000;
             break;
 
         case 5:
-        case 6:
             TIMER_A2->CCR[0] = 3000 * 1.f / 294 * 1000;
             break;
 
-        case 7:
-        case 8:
+        case 6:
             TIMER_A2->CCR[0] = 3000 * 1.f / 311 * 1000;
             break;
 
-        case 9:
-        case 10:
+        case 7:
             TIMER_A2->CCR[0] = 3000 * 1.f / 349 * 1000;
             break;
 
-        case 11:
-        case 12:
+        case 8:
             TIMER_A2->CCR[0] = 3000 * 1.f / 392 * 1000;
             break;
 
-        case 13:
-        case 14:
+        case 9:
             TIMER_A2->CCR[0] = 3000 * 1.f / 440 * 1000;
             break;
 
 
-        case 15:
-        case 16:
-        case 17:
-        case 18:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
             TIMER_A2->CCR[0] = 3000 * 1.f / 466 * 1000;
             break;
 
