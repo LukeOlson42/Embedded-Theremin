@@ -1,5 +1,12 @@
 #include "inc/LCD.h"
 
+/*****************Menu Options Table***********************************/
+static const MenuOptionsTable_s MenuOptionsTable[OPTIONS_TABLE_SIZE] = {
+    {Main, {"Update Time", "Change Key", NULL, NULL}, {TimeChange, KeyChange, NullMenu, NullMenu}},
+    {TimeChange, {"This is a test", "woo", NULL, NULL}, {Main, KeyChange, NullMenu, NullMenu}},
+};
+/**********************************************************************/
+
 void DrawString(uint8_t x, uint8_t y, char *buf, uint16_t textColor, uint16_t bkgColor, uint8_t size)
 {
     if(y>15) return;
@@ -63,13 +70,36 @@ void LCDInit(void)
     ST7735_InitR(INITR_REDTAB);
 }
 
-void DrawMenuOptions()
+void DrawMenuOptions(MenuState menu)
 {
-    for(uint8_t i = 0; i < MAX_MENU_OPTIONS; i++)
+    char OptionStringHeader[3] = "1)";
+
+    for(uint8_t i = 0; i < OPTIONS_TABLE_SIZE; i++)
     {
-        if(!MenuOptionsTable->MenuOptions[i])
+        if(MenuOptionsTable[i].Menu == menu)
         {
-            DrawString(0, i, MenuOptionsTable->MenuOptions[i], 0xffff, 0x0000, 1);
+            for(uint8_t j = 0; j < MAX_MENU_OPTIONS; j++)
+            {
+                if(MenuOptionsTable[i].MenuOptions[j] != NULL)
+                {
+                    DrawString(0, j, OptionStringHeader, 0xffff, 0x0000, 1);
+                    DrawString(4, j, MenuOptionsTable[i].MenuOptions[j], 0xffff, 0x0000, 1);
+                    OptionStringHeader[0]++;
+                }
+            }
         }
     }
+}
+
+MenuState FindNextMenu(MenuState menu, uint8_t selection)
+{
+    for(uint8_t i = 0; i < OPTIONS_TABLE_SIZE; i++)
+    {
+        if(MenuOptionsTable[i].Menu == menu)
+        {
+            return MenuOptionsTable[i].NextMenu[selection - 1];
+        }
+    }
+
+    return NullMenu;
 }

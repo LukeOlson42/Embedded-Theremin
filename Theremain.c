@@ -1,6 +1,8 @@
 #include "inc/Speaker.h"
 #include "inc/LCD.h"
 #include "inc/System.h"
+#include "inc/Keypad.h"
+#include "inc/MultipurposeKnob.h"
 
 /**888************************
  * 
@@ -20,6 +22,8 @@ int main(void)
 
     __enable_irq();     // enabling global interrupts
 
+    P1->DIR |= BIT0;
+
     for(;;)
     {
 
@@ -31,13 +35,24 @@ int main(void)
 
         // update eeprom if needed
 
-        if(Theremin.Flags.CalculateDistance)
+        if(ReadKeypad(&Theremin.LastPressedKey))        // put in function pointer table depending on system state
+        {
+            if(Theremin.LastPressedKey < MAX_MENU_OPTIONS)
+            {
+                MenuState NextMenu = FindNextMenu(Theremin.Menu, Theremin.LastPressedKey);
+                if(NextMenu < NumberOfMenus)
+                {
+                    DrawMenuOptions(NextMenu);
+                }
+            }
+        }
+
+        if(Theremin.Flags.CalculateDistance)            // put in flag eval routine
         {
             OutputPitch();
 
             Theremin.Flags.CalculateDistance = false;
         }
-
 
     }
 
@@ -47,9 +62,13 @@ int main(void)
 
 void ThereminInit(void)
 {
+    GlobalSystemInit();
+
     LCDInit();
     AudioSystemInit();
 
-    DrawString(0, 0, "test", 0xffff, 0x0000, 1);
-    
+    KeypadInit();
+    KnobInit();
+
+    DrawMenuOptions(Main);
 }

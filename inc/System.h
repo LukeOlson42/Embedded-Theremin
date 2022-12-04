@@ -17,8 +17,13 @@ typedef enum MonthOfYear {
 } MonthOfYear;
 
 typedef enum MenuState {
-    Main, DateChange, TimeChange, KeyChange
+    Main, DateChange, TimeChange, KeyChange, NumberOfMenus, // number of menus is not last, to exclude Back and NullMenu from count
+    Back, NullMenu
 } MenuState;
+
+typedef enum KnobMode {
+    VolumeChange, CircleOfFifths, NumberOfModes
+} KnobMode;
 
 typedef struct System {
     struct Speaker {
@@ -51,9 +56,10 @@ typedef struct System {
     } Flags;
 
     float Temperature;
-
     MenuState Menu;
+    uint8_t LastPressedKey;
 
+    KnobMode KnobState;
 } System;
 
 extern System Theremin;

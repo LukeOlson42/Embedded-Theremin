@@ -96,12 +96,8 @@ void OutputPitch()
             break;
     }
 
-    TIMER_A2->CCR[1] = TIMER_A2->CCR[0] * 0.5;// Theremin.Speaker.SpeakerVolume;
+    TIMER_A2->CCR[1] = TIMER_A2->CCR[0] * Theremin.Speaker.SpeakerVolume;
 }
-
-
-
-
 
 
 
