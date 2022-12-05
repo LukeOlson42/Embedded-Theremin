@@ -2,7 +2,7 @@
 #define SYSTEM_H_
 
 #include "config.h"
-
+/**************Enumerations*********************/
 typedef enum MusicalNote {
     A, Bb, B, C, Db, D, Eb, E, F, Gb, G, Ab
 } MusicalNote;
@@ -24,6 +24,26 @@ typedef enum MenuState {
 typedef enum KnobMode {
     VolumeChange, CircleOfFifths, NumberOfModes
 } KnobMode;
+
+typedef enum SystemState {
+    NormalOperation, DateTimeInput
+} SystemState;
+/***********************************************/
+
+
+
+/***************System State*******************/
+typedef void (*StateExecFunc)(void);
+
+typedef struct SystemStateExecTable_s {
+    SystemState state;
+    StateExecFunc funcPtr;
+} SystemStateExecTable_s;
+
+/*****************************************/
+
+
+/**********System Struct**************/
 
 typedef struct System {
     struct Speaker {
@@ -64,12 +84,17 @@ typedef struct System {
     } Flags;
 
     float Temperature;
+
     MenuState Menu;
     MenuState PreviousMenu;
     uint8_t LastPressedKey;
 
     KnobMode KnobState;
+
+    SystemState State;
 } System;
+/*****************************************/
+
 
 extern System Theremin;
 

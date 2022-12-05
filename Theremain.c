@@ -36,7 +36,7 @@ int main(void)
         // update eeprom if needed
 
 
-        if(ReadKeypad(&Theremin.LastPressedKey))        // put in function pointer table depending on system state
+        if(ReadKeypad(&Theremin.LastPressedKey))        // put in function pointer table depending on system state, this is NormalOperation
         {
             if(Theremin.LastPressedKey <= MAX_MENU_OPTIONS)
             {

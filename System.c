@@ -1,6 +1,13 @@
 #include "inc/System.h"
 
+/******Global System Variable*******/
 System Theremin;
+/***********************************/
+
+
+
+
+
 
 void GlobalSystemInit()
 {
