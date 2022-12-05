@@ -43,6 +43,8 @@ void AudioSystemInit()
 
 void OutputPitch()
 {
+    static uint8_t previousPitch = 0;
+
     switch(Theremin.Speaker.SensorDistanceInches)
     {
         case 0:
@@ -79,15 +81,27 @@ void OutputPitch()
 
 
         case 10:
-        case 11:
-        case 12:
-        case 13:
             TIMER_A2->CCR[0] = 3000 * 1.f / 466 * 1000;
             break;
 
         default:
             TIMER_A2->CCR[0] = 0;
             break;
+    }
+
+    if(previousPitch != Theremin.Speaker.SensorDistanceInches)
+    {
+        Theremin.Flags.UpdatedPitch = true;
+    }
+
+    if(Theremin.Speaker.SensorDistanceInches >= 3 || Theremin.Speaker.SensorDistanceInches < 10)
+    {
+        previousPitch = Theremin.Speaker.SensorDistanceInches;
+        Theremin.Speaker.CurrentNote = Theremin.Speaker.SensorDistanceInches - 3;
+    }
+    else
+    {
+        previousPitch = 0;
     }
 
     TIMER_A2->CCR[1] = TIMER_A2->CCR[0] * Theremin.Speaker.SpeakerVolume;

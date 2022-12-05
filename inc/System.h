@@ -7,6 +7,10 @@ typedef enum MusicalNote {
     A, Bb, B, C, Db, D, Eb, E, F, Gb, G, Ab
 } MusicalNote;
 
+typedef enum LEDAndBorderColor {
+    Red, White, Green, Aqua, Blue, Violet, Yellow, NumberOfColors,
+} LEDAndBorderColor;
+
 typedef enum DayOfWeek {
     Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
 } DayOfWeek;
@@ -48,7 +52,7 @@ typedef struct SystemStateExecTable_s {
 typedef struct System {
     struct Speaker {
         MusicalNote Key;
-        MusicalNote CurrentNote;
+        uint8_t CurrentNote; // 0 - 7, with 7 being upper octave
         // float TuningOffset;
 
         float SpeakerVolume;

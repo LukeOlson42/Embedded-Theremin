@@ -23,6 +23,9 @@ int main(void)
     __enable_irq();     // enabling global interrupts
 
     P1->DIR |= BIT0;
+    P1->OUT &= ~BIT0;
+
+    Theremin.RTC.CalendarDate.Year = 1984;
 
     for(;;)
     {
@@ -70,6 +73,12 @@ int main(void)
             DisplayRTCData();
 
             Theremin.Flags.UpdatedRTCData = false;
+        }
+
+        if(Theremin.Flags.UpdatedPitch)
+        {
+            DrawBorders();
+            Theremin.Flags.UpdatedPitch = false;
         }
 
 

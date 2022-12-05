@@ -15,6 +15,12 @@ typedef struct MonthTable_s {
     MonthOfYear month;
     char*       monthString;
 } MonthTable_s;
+
+typedef struct LEDAndBorderTable_s {
+    LEDAndBorderColor color;
+    uint8_t LEDPinBitmask;
+    uint16_t LCDColorData;
+} LEDAndBorderTable_s;
 /***************************************************/
 
 typedef void (*MenuFunc)(void);
@@ -43,8 +49,7 @@ void UpdateVolumeBars(void);
 
 void DisplayRTCData(void);
 
-// static char* GetDayString(DayOfWeek day);
-// static char* GetMonthString(MonthOfYear month);
+void DrawBorders(void);
 
 
 

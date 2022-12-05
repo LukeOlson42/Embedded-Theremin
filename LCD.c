@@ -28,6 +28,7 @@ static const MenuOptionsTable_s MenuOptionsTable[OPTIONS_TABLE_SIZE] = {
 };
 /**********************************************************************/
 
+/******************Day and Month String Data*******************/
 static const DayTable_s DayTable[] = {
     {Monday,       "Monday"}, {Tuesday,   "Tuesday"}, 
     {Wednesday, "Wednesday"}, {Thursday, "Thursday"}, 
@@ -43,6 +44,21 @@ static const MonthTable_s MonthTable[] = {
     {September, "September"}, {October,   "October"}, 
     {November,   "November"}, {December, "December"}, 
 };
+/*************************************************************/
+
+/************LED and Border Table**************/
+static const LEDAndBorderTable_s LEDAndBorderTable[] = {
+    {Red,    0x00, ST7735_RED},
+    {White,  0x00, ST7735_WHITE},
+    {Green,  0x00, ST7735_GREEN},
+    {Aqua,   0x00, ST7735_CYAN},
+    {Blue,   0x00, ST7735_BLUE},
+    {Violet, 0x00, ST7735_MAGENTA},
+    {Yellow, 0x00, ST7735_YELLOW},
+    {Red,    0x00, ST7735_RED}
+};
+/**********************************************/
+
 
 void DrawString(uint8_t x, uint8_t y, char *buf, uint16_t textColor, uint16_t bkgColor, uint8_t size)
 {
@@ -129,8 +145,8 @@ void DrawMenuOptions(MenuState menu)
                     uint8_t xOffset = ((Theremin.Flags.LargeNumberMenu) ? LARGE_MENU_X_OFFSET : 0);
                     uint8_t yOffset = ((Theremin.Flags.LargeNumberMenu) ? LARGE_MENU_Y_OFFSET : 0);
 
-                    DrawString(0 + xOffset, j + MENU_Y_OFFSET + yOffset, OptionStringHeader, 0xffff, 0x0000, 1);
-                    DrawString(3 + xOffset, j + MENU_Y_OFFSET + yOffset, MenuOptionsTable[i].MenuOptions[j], 0xffff, 0x0000, 1);
+                    DrawString(1 + xOffset, j + MENU_Y_OFFSET + yOffset, OptionStringHeader, 0xffff, 0x0000, 1);
+                    DrawString(4 + xOffset, j + MENU_Y_OFFSET + yOffset, MenuOptionsTable[i].MenuOptions[j], 0xffff, 0x0000, 1);
                 }
                 OptionStringHeader[0]++;
             }
@@ -180,8 +196,6 @@ void UpdateVolumeBars()
         {
             ST7735_FillRect(VOLUME_BARS_X + (VOLUME_BARS_WIDTH + VOLUME_BARS_SEPARATION) * BarPosition, VOLUME_BARS_Y, VOLUME_BARS_WIDTH, VOLUME_BARS_HEIGHT, 0xffff);
             Theremin.Flags.VolumeUp = false;
-
-            P1->OUT |= BIT0;
         }
     }
 }
@@ -212,20 +226,105 @@ static char* GetMonthString(MonthOfYear month)
     return NULL;
 }
 
+static void ConvertDateToString(char* dateString)
+{
+    uint8_t date = Theremin.RTC.CalendarDate.Date;
+    uint16_t year = Theremin.RTC.CalendarDate.Year;
+
+    char tempString[] = {
+        '0' + date / 10,
+        '0' + date % 10,
+        ',',
+        ' ',
+        '0' + year / 1000,
+        '0' + (year / 100) % 10,
+        '0' + (year / 10) % 10,
+        '0' + year % 10,
+        '\0'
+    };
+
+    if(tempString[4] == '1')
+    {
+        P1->OUT |= BIT0;
+    }
+
+    strcpy(dateString, tempString);
+}
+
+
+static void ConvertTimeToString(char* timeString)
+{
+    uint8_t hour = Theremin.RTC.Time.Hour;
+    uint8_t minute = Theremin.RTC.Time.Minute;
+    uint8_t seconds = Theremin.RTC.Time.Second;
+
+    char tempString[] = {
+        '0' + hour / 10,
+        '0' + hour % 10,
+        ':',
+        '0' + minute / 10,
+        '0' + minute % 10,
+        ':',
+        '0' + seconds / 10,
+        '0' + seconds % 10,
+        '\0',
+    };
+
+    strcpy(timeString, tempString);
+}
+
 void DisplayRTCData(void)
 {
     char* MonthStr = GetMonthString(Theremin.RTC.CalendarDate.Month);
     char* DayStr = GetDayString(Theremin.RTC.CalendarDate.Day);
+    char DateStr[] = "00, 0000";
+    char TimeStr[] = "00:00:00";
+
+    ConvertDateToString(DateStr);
+    ConvertTimeToString(TimeStr);
 
     if(MonthStr)
     {
-        DrawString(6, 0, MonthStr, 0xffff, 0x0000, 1);
+        DrawString(3, DATE_TIME_MENU_Y_OFFSET, MonthStr, 0xffff, 0x0000, 1);
     }
+
+    DrawString(11, DATE_TIME_MENU_Y_OFFSET, DateStr, 0xffff, 0x0000, 1);
+
 
     if(DayStr)
     {
-        DrawString(4, 1, DayStr, 0xffff, 0x0000, 1);
+        DrawString(3, DATE_TIME_MENU_Y_OFFSET + 1, DayStr, 0xffff, 0x0000, 1);
     }
+
+    DrawString(11, DATE_TIME_MENU_Y_OFFSET + 1, TimeStr, 0xffff, 0x0000, 1);
 }
 
+
+static uint16_t GetDesiredColor(void)
+{
+    for(uint8_t i = 0; i <= 7; i++)
+    {
+        if(Theremin.Speaker.CurrentNote == i)
+        {
+            return LEDAndBorderTable[i].LCDColorData;
+        }
+    }
+
+    return 0x0000;
+}
+
+void DrawBorders(void)
+{
+    uint16_t borderColor = GetDesiredColor();
+
+    if(Theremin.Speaker.SensorDistanceInches > 13 || Theremin.Speaker.SensorDistanceInches < 3)
+    {
+        borderColor = 0x0000;
+    }
+
+    ST7735_FillRect(0, 0, 2, ST7735_TFTHEIGHT, borderColor);
+    ST7735_FillRect(0, 0, ST7735_TFTWIDTH, 2, borderColor);
+    ST7735_FillRect(ST7735_TFTWIDTH - 2, 0, 2, ST7735_TFTHEIGHT, borderColor);
+    ST7735_FillRect(0, ST7735_TFTHEIGHT - 2, ST7735_TFTWIDTH, 2, borderColor);
+}
 

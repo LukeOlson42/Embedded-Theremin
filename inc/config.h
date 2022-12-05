@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 #include "msp.h"
 
 // add any defines
@@ -17,6 +18,8 @@
 #define MAX_MENU_OPTIONS 4
 #define OPTIONS_TABLE_SIZE 4
 #define MENU_Y_OFFSET 9
+
+#define DATE_TIME_MENU_Y_OFFSET 3
 
 #define LARGE_MENU_Y_OFFSET 3
 #define LARGE_MENU_X_OFFSET 6
