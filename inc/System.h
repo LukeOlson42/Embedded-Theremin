@@ -17,8 +17,8 @@ typedef enum MonthOfYear {
 } MonthOfYear;
 
 typedef enum MenuState {
-    Main, DateChange, TimeChange, KeyChange, NumberOfMenus, // number of menus is not last, to exclude Back and NullMenu from count
-    Back, NullMenu
+    Main, VolumeDisplay, TimeChange, PitchDisplay, NumberOfMenus, // number of menus is not last, to exclude Back and NullMenu from count
+    Back, RoutineExec, NullMenu
 } MenuState;
 
 typedef enum KnobMode {
@@ -32,6 +32,7 @@ typedef struct System {
         // float TuningOffset;
 
         float SpeakerVolume;
+        uint8_t DiscreteVolume;
         float SensorPeriod;
         uint8_t SensorDistanceInches;
     } Speaker;
@@ -53,10 +54,18 @@ typedef struct System {
 
     struct Flags {
         bool CalculateDistance;
+        bool ChangeMenu;
+        bool LargeNumberMenu;
+        bool UpdatedVolume;
+        bool VolumeUp;
+        bool VolumeDown;
+
+        bool UpdatedPitch;
     } Flags;
 
     float Temperature;
     MenuState Menu;
+    MenuState PreviousMenu;
     uint8_t LastPressedKey;
 
     KnobMode KnobState;
@@ -65,6 +74,7 @@ typedef struct System {
 extern System Theremin;
 
 void GlobalSystemInit();
+void EvaluateSystemFlags();
 
 
 #endif

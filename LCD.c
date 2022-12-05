@@ -2,8 +2,29 @@
 
 /*****************Menu Options Table***********************************/
 static const MenuOptionsTable_s MenuOptionsTable[OPTIONS_TABLE_SIZE] = {
-    {Main, {"Update Time", "Change Key", NULL, NULL}, {TimeChange, KeyChange, NullMenu, NullMenu}},
-    {TimeChange, {"This is a test", "woo", NULL, NULL}, {Main, KeyChange, NullMenu, NullMenu}},
+
+    {Main, 
+    {"Update Time", "Display Note", "Display Volume", NULL}, 
+    {TimeChange, PitchDisplay, VolumeDisplay, NullMenu}, 
+    {NULL, NULL, NULL, NULL}},
+
+
+    {TimeChange, 
+    {"Update Time", "Update Date", "Back", NULL}, 
+    {RoutineExec, RoutineExec, Back, NullMenu}, 
+    {NULL, NULL, NULL, NULL}},
+
+
+    {PitchDisplay, 
+    {NULL, NULL, NULL, "Back"}, 
+    {NullMenu, NullMenu, NullMenu, Back}, 
+    {NULL, NULL, NULL, NULL}},
+
+    {VolumeDisplay, 
+    {NULL, NULL, NULL, "Back"}, 
+    {NullMenu, NullMenu, NullMenu, Back}, 
+    {NULL, NULL, NULL, NULL}},
+
 };
 /**********************************************************************/
 
@@ -89,10 +110,13 @@ void DrawMenuOptions(MenuState menu)
             {
                 if(MenuOptionsTable[i].MenuOptions[j] != NULL)
                 {
-                    DrawString(0, j + MENU_Y_OFFSET, OptionStringHeader, 0xffff, 0x0000, 1);
-                    DrawString(4, j + MENU_Y_OFFSET, MenuOptionsTable[i].MenuOptions[j], 0xffff, 0x0000, 1);
-                    OptionStringHeader[0]++;
+                    uint8_t xOffset = ((Theremin.Flags.LargeNumberMenu) ? LARGE_MENU_X_OFFSET : 0);
+                    uint8_t yOffset = ((Theremin.Flags.LargeNumberMenu) ? LARGE_MENU_Y_OFFSET : 0);
+
+                    DrawString(0 + xOffset, j + MENU_Y_OFFSET + yOffset, OptionStringHeader, 0xffff, 0x0000, 1);
+                    DrawString(3 + xOffset, j + MENU_Y_OFFSET + yOffset, MenuOptionsTable[i].MenuOptions[j], 0xffff, 0x0000, 1);
                 }
+                OptionStringHeader[0]++;
             }
         }
     }
@@ -113,5 +137,35 @@ MenuState FindNextMenu(MenuState menu, uint8_t selection)
 
 void ClearMenu(void)
 {
+    ST7735_FillRect(0, ST7735_TFTHEIGHT / 2 + 1, ST7735_TFTWIDTH, ST7735_TFTHEIGHT / 2, 0x0000);
+}
 
+void DisplayVolumeBars()
+{
+    for(uint8_t i = 0; i < Theremin.Speaker.DiscreteVolume; i++)
+    {
+        ST7735_FillRect(VOLUME_BARS_X + (VOLUME_BARS_WIDTH + 5) * i, VOLUME_BARS_Y, VOLUME_BARS_WIDTH, VOLUME_BARS_HEIGHT, 0xffff);
+    }
+}
+
+void UpdateVolumeBars()
+{
+    if(Theremin.Flags.UpdatedVolume && (Theremin.Menu == VolumeDisplay))
+    {
+        uint8_t BarPosition = Theremin.Speaker.DiscreteVolume - 1;
+
+        if(Theremin.Flags.VolumeDown)
+        {
+            BarPosition++;
+            ST7735_FillRect(VOLUME_BARS_X + (VOLUME_BARS_WIDTH + VOLUME_BARS_SEPARATION) * BarPosition, VOLUME_BARS_Y, VOLUME_BARS_WIDTH, VOLUME_BARS_HEIGHT, 0x0000);
+            Theremin.Flags.VolumeDown = false;
+        }
+        if(Theremin.Flags.VolumeUp)
+        {
+            ST7735_FillRect(VOLUME_BARS_X + (VOLUME_BARS_WIDTH + VOLUME_BARS_SEPARATION) * BarPosition, VOLUME_BARS_Y, VOLUME_BARS_WIDTH, VOLUME_BARS_HEIGHT, 0xffff);
+            Theremin.Flags.VolumeUp = false;
+        }
+
+        Theremin.Flags.UpdatedVolume = false;
+    }
 }

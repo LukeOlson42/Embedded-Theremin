@@ -35,14 +35,47 @@ int main(void)
 
         // update eeprom if needed
 
+
         if(ReadKeypad(&Theremin.LastPressedKey))        // put in function pointer table depending on system state
         {
-            if(Theremin.LastPressedKey < MAX_MENU_OPTIONS)
+            if(Theremin.LastPressedKey <= MAX_MENU_OPTIONS)
             {
                 MenuState NextMenu = FindNextMenu(Theremin.Menu, Theremin.LastPressedKey);
-                if(NextMenu < NumberOfMenus)
+                if(NextMenu != NullMenu)
                 {
-                    DrawMenuOptions(NextMenu);
+                    if(NextMenu == Back)
+                    {
+                        Theremin.Menu = Theremin.PreviousMenu;
+                        Theremin.Flags.LargeNumberMenu = false;
+                        Theremin.Flags.UpdatedPitch = false;
+                        Theremin.Flags.UpdatedVolume = false;
+                    }
+                    else if(NextMenu == RoutineExec)
+                    {
+                        // execute routine
+                    }
+                    else
+                    {
+                        if(NextMenu == VolumeDisplay)
+                        {
+                            Theremin.Flags.LargeNumberMenu = true;
+                            Theremin.Flags.UpdatedVolume = true;
+                        }
+                        else if(NextMenu == PitchDisplay)
+                        {
+                            Theremin.Flags.LargeNumberMenu = true;
+                            Theremin.Flags.UpdatedPitch = true;
+                        }
+                        else
+                        {
+                            Theremin.Flags.LargeNumberMenu = false;
+                        }
+
+                        Theremin.PreviousMenu = Theremin.Menu;
+                        Theremin.Menu = NextMenu;
+                    }
+
+                    Theremin.Flags.ChangeMenu = true;
                 }
             }
         }
@@ -53,6 +86,24 @@ int main(void)
 
             Theremin.Flags.CalculateDistance = false;
         }
+
+        if(Theremin.Flags.ChangeMenu)
+        {
+            ClearMenu();
+            DrawMenuOptions(Theremin.Menu);
+            if(Theremin.Menu == VolumeDisplay)
+            {
+                DisplayVolumeBars();
+            }
+
+            Theremin.Flags.ChangeMenu = false;
+        }
+
+        UpdateVolumeBars();
+
+
+
+
 
     }
 

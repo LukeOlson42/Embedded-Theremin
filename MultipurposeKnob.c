@@ -22,16 +22,24 @@ void RightKnobTurn()
     if(Theremin.KnobState == VolumeChange)
     {
         Theremin.Speaker.SpeakerVolume *= 2;
+        Theremin.Speaker.DiscreteVolume++;
 
         if(Theremin.Speaker.SpeakerVolume > 0.5)
         {
             Theremin.Speaker.SpeakerVolume = 0.5;
+            Theremin.Speaker.DiscreteVolume = 10;
         }
 
         if(Theremin.Speaker.SpeakerVolume == 0)
         {
-            Theremin.Speaker.SpeakerVolume = 0.015625;
+            Theremin.Speaker.SpeakerVolume = 0.0009765625;
+            Theremin.Speaker.DiscreteVolume = 1;
         }
+        else
+        {
+            Theremin.Flags.VolumeUp = true;
+        }
+
     }
     else
     {
@@ -44,12 +52,17 @@ void LeftKnobTurn()
     if(Theremin.KnobState == VolumeChange)
     {
         Theremin.Speaker.SpeakerVolume /= 2;
+        Theremin.Speaker.DiscreteVolume--;
 
         if(Theremin.Speaker.SpeakerVolume < 0.0005)
         {
             Theremin.Speaker.SpeakerVolume = 0;
+            Theremin.Speaker.DiscreteVolume = 0;
         }
-
+        else
+        {
+            Theremin.Flags.VolumeDown = true;
+        }
     }
     else
     {
@@ -82,6 +95,11 @@ void PORT3_IRQHandler(void)
             {
                 RightKnobTurn();
             }
+        }
+
+        if(Theremin.KnobState == VolumeChange)
+        {
+            Theremin.Flags.UpdatedVolume = true;
         }
 
         P3->IES ^= BIT5;
