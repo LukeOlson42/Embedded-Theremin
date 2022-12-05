@@ -35,49 +35,15 @@ int main(void)
 
         // update eeprom if needed
 
+        EvaluateSystemState();
+        
+        UpdateVolumeBars();
 
-        if(ReadKeypad(&Theremin.LastPressedKey))        // put in function pointer table depending on system state, this is NormalOperation
+        if(Theremin.Flags.UpdatedVolume)
         {
-            if(Theremin.LastPressedKey <= MAX_MENU_OPTIONS)
-            {
-                MenuState NextMenu = FindNextMenu(Theremin.Menu, Theremin.LastPressedKey);
-                if(NextMenu != NullMenu)
-                {
-                    if(NextMenu == Back)
-                    {
-                        Theremin.Menu = Theremin.PreviousMenu;
-                        Theremin.Flags.LargeNumberMenu = false;
-                        Theremin.Flags.UpdatedPitch = false;
-                        Theremin.Flags.UpdatedVolume = false;
-                    }
-                    else if(NextMenu == RoutineExec)
-                    {
-                        // execute routine
-                    }
-                    else
-                    {
-                        if(NextMenu == VolumeDisplay)
-                        {
-                            Theremin.Flags.LargeNumberMenu = true;
-                            Theremin.Flags.UpdatedVolume = true;
-                        }
-                        else if(NextMenu == PitchDisplay)
-                        {
-                            Theremin.Flags.LargeNumberMenu = true;
-                            Theremin.Flags.UpdatedPitch = true;
-                        }
-                        else
-                        {
-                            Theremin.Flags.LargeNumberMenu = false;
-                        }
+            UpdateVolumeBars();
 
-                        Theremin.PreviousMenu = Theremin.Menu;
-                        Theremin.Menu = NextMenu;
-                    }
-
-                    Theremin.Flags.ChangeMenu = true;
-                }
-            }
+            Theremin.Flags.UpdatedVolume = false;
         }
 
         if(Theremin.Flags.CalculateDistance)            // put in flag eval routine
@@ -99,14 +65,15 @@ int main(void)
             Theremin.Flags.ChangeMenu = false;
         }
 
-        UpdateVolumeBars();
+        if(Theremin.Flags.UpdatedRTCData)
+        {
+            DisplayRTCData();
 
-
-
+            Theremin.Flags.UpdatedRTCData = false;
+        }
 
 
     }
-
 
     return 0;
 }

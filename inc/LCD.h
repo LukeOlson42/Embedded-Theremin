@@ -5,36 +5,17 @@
 #include "ST7735.h"
 #include "System.h"
 
-// /*************** Data for Day Strings ***************/
-// typedef struct DayTable_s {
-//     DayOfWeek day;
-//     char*     dayString;
-// } DayTable_s;
+/*************** Data Structures ***************/
+typedef struct DayTable_s {
+    DayOfWeek day;
+    char*     dayString;
+} DayTable_s;
 
-// static const DayTable_s DayTable[] = {
-//     {Monday,       "Monday"}, {Tuesday,   "Tuesday"}, 
-//     {Wednesday, "Wednesday"}, {Thursday, "Thursday"}, 
-//     {Friday,       "Friday"}, {Saturday, "Saturday"}, 
-//     {Sunday,       "Sunday"}, 
-// };
-// /***************************************************/
-
-
-// /************** Data for Month Strings *************/
-// typedef struct MonthTable_s {
-//     MonthOfYear month;
-//     char*       monthString;
-// };
-
-// static const MonthTable_s MonthTable[] = {
-//     {January,     "January"}, {February, "February"}, 
-//     {March,         "March"}, {April,       "April"}, 
-//     {May,             "May"}, {June,         "June"}, 
-//     {July,           "July"}, {August,     "August"}, 
-//     {September, "September"}, {October,   "October"}, 
-//     {November,   "November"}, {December, "December"}, 
-// };
-// /***************************************************/
+typedef struct MonthTable_s {
+    MonthOfYear month;
+    char*       monthString;
+} MonthTable_s;
+/***************************************************/
 
 typedef void (*MenuFunc)(void);
 
@@ -60,8 +41,10 @@ MenuState FindNextMenu(MenuState menu, uint8_t selection);
 void DisplayVolumeBars(void);
 void UpdateVolumeBars(void);
 
+void DisplayRTCData(void);
 
-
+// static char* GetDayString(DayOfWeek day);
+// static char* GetMonthString(MonthOfYear month);
 
 
 

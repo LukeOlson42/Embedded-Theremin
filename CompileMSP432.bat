@@ -1,0 +1,1 @@
+mingw32-make DEVICE=MSP432P401R

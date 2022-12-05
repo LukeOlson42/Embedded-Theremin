@@ -11,7 +11,7 @@ static const MenuOptionsTable_s MenuOptionsTable[OPTIONS_TABLE_SIZE] = {
 
     {TimeChange, 
     {"Update Time", "Update Date", "Back", NULL}, 
-    {RoutineExec, RoutineExec, Back, NullMenu}, 
+    {SystemStateChange, SystemStateChange, Back, NullMenu}, 
     {NULL, NULL, NULL, NULL}},
 
 
@@ -27,6 +27,22 @@ static const MenuOptionsTable_s MenuOptionsTable[OPTIONS_TABLE_SIZE] = {
 
 };
 /**********************************************************************/
+
+static const DayTable_s DayTable[] = {
+    {Monday,       "Monday"}, {Tuesday,   "Tuesday"}, 
+    {Wednesday, "Wednesday"}, {Thursday, "Thursday"}, 
+    {Friday,       "Friday"}, {Saturday, "Saturday"}, 
+    {Sunday,       "Sunday"}, 
+};
+
+static const MonthTable_s MonthTable[] = {
+    {January,     "January"}, {February, "February"}, 
+    {March,         "March"}, {April,       "April"}, 
+    {May,             "May"}, {June,         "June"}, 
+    {July,           "July"}, {August,     "August"}, 
+    {September, "September"}, {October,   "October"}, 
+    {November,   "November"}, {December, "December"}, 
+};
 
 void DrawString(uint8_t x, uint8_t y, char *buf, uint16_t textColor, uint16_t bkgColor, uint8_t size)
 {
@@ -137,7 +153,7 @@ MenuState FindNextMenu(MenuState menu, uint8_t selection)
 
 void ClearMenu(void)
 {
-    ST7735_FillRect(0, ST7735_TFTHEIGHT / 2 + 1, ST7735_TFTWIDTH, ST7735_TFTHEIGHT / 2, 0x0000);
+    ST7735_FillRect(0, ST7735_TFTHEIGHT / 2 + 1, ST7735_TFTWIDTH, ST7735_TFTHEIGHT / 2, 0x0000); // +1 offset prevents erasure of horizontal line
 }
 
 void DisplayVolumeBars()
@@ -150,7 +166,7 @@ void DisplayVolumeBars()
 
 void UpdateVolumeBars()
 {
-    if(Theremin.Flags.UpdatedVolume && (Theremin.Menu == VolumeDisplay))
+    if(Theremin.Menu == VolumeDisplay)
     {
         uint8_t BarPosition = Theremin.Speaker.DiscreteVolume - 1;
 
@@ -164,8 +180,52 @@ void UpdateVolumeBars()
         {
             ST7735_FillRect(VOLUME_BARS_X + (VOLUME_BARS_WIDTH + VOLUME_BARS_SEPARATION) * BarPosition, VOLUME_BARS_Y, VOLUME_BARS_WIDTH, VOLUME_BARS_HEIGHT, 0xffff);
             Theremin.Flags.VolumeUp = false;
-        }
 
-        Theremin.Flags.UpdatedVolume = false;
+            P1->OUT |= BIT0;
+        }
     }
 }
+
+static char* GetDayString(DayOfWeek day)
+{
+    for(uint8_t i = Sunday; i <= Saturday; i++)
+    {
+        if(DayTable[i].day == day)
+        {
+            return DayTable[i].dayString;
+        }
+    }
+
+    return NULL;
+}
+
+static char* GetMonthString(MonthOfYear month)
+{
+    for(uint8_t i = January; i <= December; i++)
+    {
+        if(MonthTable[i].month == month)
+        {
+            return MonthTable[i].monthString;
+        }
+    }
+
+    return NULL;
+}
+
+void DisplayRTCData(void)
+{
+    char* MonthStr = GetMonthString(Theremin.RTC.CalendarDate.Month);
+    char* DayStr = GetDayString(Theremin.RTC.CalendarDate.Day);
+
+    if(MonthStr)
+    {
+        DrawString(6, 0, MonthStr, 0xffff, 0x0000, 1);
+    }
+
+    if(DayStr)
+    {
+        DrawString(4, 1, DayStr, 0xffff, 0x0000, 1);
+    }
+}
+
+
