@@ -74,6 +74,7 @@ int main(void)
         {
             RTC_Data data;
             ReadDataFromRTC(&data);
+            
             Theremin.RTC.Time.Second = data.seconds;
             Theremin.RTC.Time.Minute = data.minute;
             Theremin.RTC.Time.Hour = data.hour;

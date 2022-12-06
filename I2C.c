@@ -102,7 +102,7 @@ void ReadDataFromRTC(RTC_Data* data)
     data->day = tempData[3] & 0x07;
     data->date = ((tempData[4] & 0x30) >> 4) * 10 + (tempData[4] & 0x0F);
     data->month = ((tempData[5] & 0x10) >> 4) * 10 + (tempData[5] & 0x0F);
-    data->year = ((tempData[6] & 0xF0) >> 4) * 10 + (tempData[5] & 0x0F);
+    data->year = ((tempData[6] & 0xF0) >> 4) * 10 + (tempData[6] & 0x0F);
 }
 
 

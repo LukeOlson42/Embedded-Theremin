@@ -105,7 +105,6 @@ void SystemNormalOperation(void)
 void SystemDataInput(void)
 {
     static uint8_t inputArr[2] = {0, 0};
-    static uint8_t yearArr[4] = {0, 0, 0, 0};
 
     if(ReadKeypad(&Theremin.LastPressedKey))
     {
@@ -118,70 +117,36 @@ void SystemDataInput(void)
         }
         else if(Theremin.LastPressedKey != '#')
         {
-            if(Theremin.Menu == InputYear)
-            {
+            inputArr[0] = inputArr[1];          // shifts numbers to left
+            inputArr[1] = Theremin.LastPressedKey;
 
-                yearArr[0] = yearArr[1];          // shifts numbers to left
-                yearArr[1] = yearArr[2];          // shifts numbers to left
-                yearArr[2] = yearArr[3];          // shifts numbers to left
-                yearArr[3] = Theremin.LastPressedKey;
+            char tempString[] = {
+                '0' + inputArr[0],
+                '0' + inputArr[1],
+                '\0'
+            };
 
-                char tempString[] = {
-                    '0' + yearArr[0],
-                    '0' + yearArr[1],
-                    '0' + yearArr[2],
-                    '0' + yearArr[3],
-                    '\0'
-                };
-
-                DrawString(3, 9, tempString, 0xffff, 0x0000, 4);
-            }
-            else
-            {
-                inputArr[0] = inputArr[1];          // shifts numbers to left
-                inputArr[1] = Theremin.LastPressedKey;
-
-                char tempString[] = {
-                    '0' + inputArr[0],
-                    '0' + inputArr[1],
-                    '\0'
-                };
-
-                DrawString(7, 9, tempString, 0xffff, 0x0000, 4);
-            }
+            DrawString(7, 9, tempString, 0xffff, 0x0000, 4);
 
         }
         else // # is pressed
         {
-            // uint8_t 
-            if(Theremin.Menu == InputYear)
+            uint8_t DataToSend = (inputArr[0] << 4) | inputArr[1];
+
+            if(Theremin.Menu == InputMonth)
             {
-                uint8_t DataToSend = yearArr[0] * 1000 + yearArr[1] * 100 + yearArr[2] * 10 + yearArr[3];
-                
-                WriteDataToRTC(DataToSend, Year);
+                DataToSend--;
             }
-            else
-            {
-                uint8_t DataToSend = inputArr[0] * 10 + inputArr[1];
 
-                if(Theremin.Menu == InputMonth)
-                {
-                    DataToSend--;
-                }
 
-                WriteDataToRTC(DataToSend, GetDesiredRTCAddress());
-
-                // Send Data to RTC
-            }
+            WriteDataToRTC(DataToSend, GetDesiredRTCAddress());
 
             Theremin.State = NormalOperation;
             Theremin.Flags.ChangeMenu = true;
             Theremin.Flags.UpdatedRTCData = true;
             Theremin.Menu = Main;
-            // Send to RTC
 
             memset(inputArr, 0, sizeof(inputArr));
-            memset(yearArr, 0, sizeof(yearArr));
         }
     }
 

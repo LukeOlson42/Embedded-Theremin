@@ -20,7 +20,7 @@ static const MenuOptionsTable_s MenuOptionsTable[OPTIONS_TABLE_SIZE] = {
 
     {UpdateDate, 
     {"Update Month", "Update Day", "Update Date", "Update Year", "Back"}, 
-    {InputMonth, InputDay, InputYear, InputDate, RTCChange},
+    {InputMonth, InputDay, InputDate, InputYear, RTCChange},
     false},
 
     {PitchDisplay, 
@@ -103,7 +103,7 @@ static const LEDAndBorderTable_s LEDAndBorderTable[] = {
 /**********************************************/
 
 static const RTCDataLoadingTable_s RTCDataLoadingTable[] = {
-    {    InputDay,     Day}, {InputDate, Date}, {  InputMonth,   Month}, { InputYear,  Year},
+    {    InputDay,     Day}, {InputDate, Date}, {InputMonth,   Month}, { InputYear,  Year},
     {InputSeconds, Seconds}, {InputMinutes, Minutes}, {InputHours, Hours}
 };
 
@@ -303,8 +303,8 @@ static void ConvertDateToString(char* dateString)
         '0' + date % 10,
         ',',
         ' ',
-        '0' + year / 1000,
-        '0' + (year / 100) % 10,
+        '2',
+        '0',
         '0' + (year / 10) % 10,
         '0' + year % 10,
         '\0'
@@ -344,7 +344,7 @@ void DisplayRTCData(void)
 {
     char* MonthStr = GetMonthString(Theremin.RTC.CalendarDate.Month);
     char* DayStr = GetDayString(Theremin.RTC.CalendarDate.Day);
-    char DateStr[] = "00, 0000";
+    char DateStr[] = "00, 2000";
     char TimeStr[] = "00:00:00";
 
     ConvertDateToString(DateStr);
