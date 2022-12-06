@@ -94,8 +94,6 @@ int main(void)
             Theremin.Flags.UpdatedRTCData = false;
         }
 
-
-
     }
 
     return 0;
@@ -112,6 +110,9 @@ void ThereminInit(void)
     KnobInit();
 
     InitI2C();
+
+    HeartbeatTimerInit();
+    TimeoutTimerInit();
 
     DrawMenuStructure();
     DrawMenuOptions(Main);

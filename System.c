@@ -71,10 +71,11 @@ void SystemNormalOperation(void)
             {
                 if(NextMenu >= InputDay && NextMenu < NumberOfMenus)
                 {
-                    // ClearMenu();
                     // execute routine
                     Theremin.State = DataInput;
                     Theremin.Menu = NextMenu;
+
+                    EnableTimeoutTimer();
 
                 }
                 else
@@ -106,6 +107,15 @@ void SystemDataInput(void)
 {
     static uint8_t inputArr[2] = {0, 0};
 
+    if(Theremin.Flags.SystemTimeout)
+    {
+        Theremin.Menu = Main;
+        Theremin.Flags.ChangeMenu = true;
+        Theremin.State = NormalOperation;
+
+        Theremin.Flags.SystemTimeout = false;
+    }
+
     if(ReadKeypad(&Theremin.LastPressedKey))
     {
         if(Theremin.LastPressedKey == '*') // or timeout
@@ -114,9 +124,13 @@ void SystemDataInput(void)
             Theremin.Menu = Main;
             Theremin.Flags.ChangeMenu = true;
             Theremin.Flags.UpdatedRTCData = true;
+
+            DisableTimeoutTimer();
         }
         else if(Theremin.LastPressedKey != '#')
         {
+            ResetTimeoutTimerCount();
+
             inputArr[0] = inputArr[1];          // shifts numbers to left
             inputArr[1] = Theremin.LastPressedKey;
 
@@ -146,9 +160,63 @@ void SystemDataInput(void)
             Theremin.Flags.UpdatedRTCData = true;
             Theremin.Menu = Main;
 
+            DisableTimeoutTimer();
+
             memset(inputArr, 0, sizeof(inputArr));
         }
     }
 
-    // if timeout !!!!!
+}
+
+
+
+void HeartbeatTimerInit(void)
+{
+    TIMER32_1->LOAD = 48000000; // one second
+    TIMER32_1->CONTROL = 0xE2; // interrupts, periodic, wrapping
+
+    NVIC_EnableIRQ(T32_INT1_IRQn);
+    NVIC_SetPriority(T32_INT1_IRQn, 1);
+}
+
+
+void T32_INT1_IRQHandler(void)
+{
+    Theremin.Flags.UpdatedRTCData = true;
+
+    TIMER32_1->INTCLR = 1;
+}
+
+
+void TimeoutTimerInit(void)
+{
+    TIMER32_2->LOAD = (uint32_t)((uint32_t) 48000000 * (uint32_t) 60); // one minute
+    TIMER32_2->CONTROL = 0x62;
+
+    NVIC_EnableIRQ(T32_INT2_IRQn);
+    NVIC_SetPriority(T32_INT2_IRQn, 2);
+}
+
+void EnableTimeoutTimer(void)
+{
+    TIMER32_2->CONTROL |= BIT7;
+}
+
+void DisableTimeoutTimer(void)
+{
+    TIMER32_2->CONTROL &= ~BIT7;
+}
+
+void ResetTimeoutTimerCount(void)
+{
+    DisableTimeoutTimer();
+    EnableTimeoutTimer();
+}
+
+
+void T32_INT2_IRQHandler(void)
+{
+    Theremin.Flags.SystemTimeout = true;
+
+    TIMER32_2->INTCLR = 1;
 }

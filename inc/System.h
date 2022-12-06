@@ -78,14 +78,12 @@ typedef struct System {
     struct Flags {
         bool CalculateDistance;
         bool ChangeMenu;
-
         bool UpdatedRTCData;
-
         bool UpdatedVolume;
         bool VolumeUp;
         bool VolumeDown;
-
         bool UpdatedPitch;
+        bool SystemTimeout;
     } Flags;
 
     float Temperature;
@@ -110,5 +108,12 @@ void EvaluateSystemState(void);
 
 void SystemNormalOperation(void);
 void SystemDataInput(void);
+
+void HeartbeatTimerInit(void);
+void TimeoutTimerInit(void);
+
+void EnableTimeoutTimer(void);
+void DisableTimeoutTimer(void);
+void ResetTimeoutTimerCount(void);
 
 #endif

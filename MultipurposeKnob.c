@@ -16,7 +16,7 @@ void KnobInit(void)
 
     NVIC_EnableIRQ(PORT3_IRQn);
 
-    NVIC_SetPriority(PORT3_IRQn, 1);
+    NVIC_SetPriority(PORT3_IRQn, 3);
 }
 
 void RightKnobTurn()

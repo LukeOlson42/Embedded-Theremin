@@ -38,7 +38,7 @@ void AudioSystemInit()
     SpeakerInit();
     UltrasonicInit();
     NVIC_EnableIRQ(TA0_N_IRQn);
-    NVIC_SetPriority(TA0_N_IRQn, 2);
+    NVIC_SetPriority(TA0_N_IRQn, 4);
 }
 
 void OutputPitch()
