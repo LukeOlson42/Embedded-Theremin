@@ -60,7 +60,7 @@ else
 endif
 MAIN_FILE		:= Theremain
 
-OBJECTS			:= $(OBJ_DIR)/$(MAIN_FILE).o $(OBJ_DIR)/$(STARTUP).o $(OBJ_DIR)/$(SYSTEM).o $(OBJ_DIR)/System.o $(OBJ_DIR)/LCD.o $(OBJ_DIR)/ST7735.o $(OBJ_DIR)/Speaker.o $(OBJ_DIR)/Keypad.o $(OBJ_DIR)/MultipurposeKnob.o
+OBJECTS			:= $(OBJ_DIR)/$(MAIN_FILE).o $(OBJ_DIR)/$(STARTUP).o $(OBJ_DIR)/$(SYSTEM).o $(OBJ_DIR)/System.o $(OBJ_DIR)/LCD.o $(OBJ_DIR)/ST7735.o $(OBJ_DIR)/Speaker.o $(OBJ_DIR)/Keypad.o $(OBJ_DIR)/MultipurposeKnob.o $(OBJ_DIR)/I2C.o 
 ######################################
 all: $(OBJ_DIR)/$(MAIN_FILE).out
 
@@ -69,7 +69,7 @@ $(OBJECTS): | $(OBJ_DIR)
 $(OBJ_DIR):
 	@$(MKDIR) $(OBJ_DIR)
 
-$(OBJ_DIR)/%.o: %.c
+$(OBJ_DIR)/%.o: %.c 
 	@echo ============================================
 	@echo Generating $@
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
@@ -77,7 +77,7 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR)/$(MAIN_FILE).out: . $(OBJECTS)
 	@echo ============================================
 	@echo Linking objects and generating output binary
-	$(CC) $(LDFLAGS) $(word 2,$^) $(OBJ_DIR)/$(STARTUP).o $(OBJ_DIR)/$(SYSTEM).o $(OBJ_DIR)/System.o $(OBJ_DIR)/LCD.o $(OBJ_DIR)/ST7735.o $(OBJ_DIR)/Speaker.o $(OBJ_DIR)/Keypad.o $(OBJ_DIR)/MultipurposeKnob.o -o $@ $(INCLUDES)
+	$(CC) $(LDFLAGS) $(word 2,$^) $(OBJ_DIR)/$(STARTUP).o $(OBJ_DIR)/$(SYSTEM).o $(OBJ_DIR)/System.o $(OBJ_DIR)/LCD.o $(OBJ_DIR)/ST7735.o $(OBJ_DIR)/Speaker.o $(OBJ_DIR)/Keypad.o $(OBJ_DIR)/MultipurposeKnob.o $(OBJ_DIR)/I2C.o -o $@ $(INCLUDES)
 
 debug: all
 	$(GDB) $(OBJ_DIR)/$(MAIN_FILE).out

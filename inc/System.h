@@ -21,7 +21,7 @@ typedef enum MonthOfYear {
 } MonthOfYear;
 
 typedef enum MenuState {
-    Main, VolumeDisplay, TimeChange, PitchDisplay, NumberOfMenus, // number of menus is not last, to exclude Back and NullMenu from count
+    Main, VolumeDisplay, RTCChange, PitchDisplay, UpdateTime, UpdateDate, InputDay, InputDate, InputMonth, InputYear, InputSeconds, InputMinutes, InputHours, NumberOfMenus, // number of menus is not last, to exclude Back and NullMenu from count
     Back, SystemStateChange, NullMenu
 } MenuState;
 
@@ -30,7 +30,7 @@ typedef enum KnobMode {
 } KnobMode;
 
 typedef enum SystemState {
-    NormalOperation, DateTimeInput, NumberOfStates
+    NormalOperation, DataInput, NumberOfStates
 } SystemState;
 /***********************************************/
 
@@ -78,7 +78,6 @@ typedef struct System {
     struct Flags {
         bool CalculateDistance;
         bool ChangeMenu;
-        bool LargeNumberMenu;
 
         bool UpdatedRTCData;
 
@@ -92,7 +91,6 @@ typedef struct System {
     float Temperature;
 
     MenuState Menu;
-    MenuState PreviousMenu;
     uint8_t LastPressedKey;
 
     KnobMode KnobState;
@@ -111,6 +109,6 @@ void EvaluateSystemFlags(void);
 void EvaluateSystemState(void);
 
 void SystemNormalOperation(void);
-void SystemDateAndTimeInput(void);
+void SystemDataInput(void);
 
 #endif

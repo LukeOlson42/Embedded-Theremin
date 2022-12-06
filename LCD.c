@@ -4,45 +4,88 @@
 static const MenuOptionsTable_s MenuOptionsTable[OPTIONS_TABLE_SIZE] = {
 
     {Main, 
-    {"Update Time", "Display Note", "Display Volume", NULL}, 
-    {TimeChange, PitchDisplay, VolumeDisplay, NullMenu}, 
-    {NULL, NULL, NULL, NULL}},
+    {"Update RTC", "Display Note", "Display Volume", NULL}, 
+    {RTCChange, PitchDisplay, VolumeDisplay, NullMenu},
+    false},
 
-
-    {TimeChange, 
+    {RTCChange, 
     {"Update Time", "Update Date", "Back", NULL}, 
-    {SystemStateChange, SystemStateChange, Back, NullMenu}, 
-    {NULL, NULL, NULL, NULL}},
+    {UpdateTime, UpdateDate, Main, NullMenu},
+    false},
 
+    {UpdateTime, 
+    {"Update Seconds", "Update Minutes", "Update Hours", "Back"}, 
+    {InputSeconds, InputMinutes, InputHours, RTCChange},
+    false},
+
+    {UpdateDate, 
+    {"Update Month", "Update Day", "Update Date", "Update Year", "Back"}, 
+    {InputMonth, InputDay, InputYear, InputDate, RTCChange},
+    false},
 
     {PitchDisplay, 
     {NULL, NULL, NULL, "Back"}, 
-    {NullMenu, NullMenu, NullMenu, Back}, 
-    {NULL, NULL, NULL, NULL}},
+    {NullMenu, NullMenu, NullMenu, Main},
+    true},
 
     {VolumeDisplay, 
     {NULL, NULL, NULL, "Back"}, 
-    {NullMenu, NullMenu, NullMenu, Back}, 
-    {NULL, NULL, NULL, NULL}},
+    {NullMenu, NullMenu, NullMenu, Main},
+    true,},
+
+    {InputDay, 
+    {NULL, NULL, "Confirm", "Back"}, 
+    {NullMenu, NullMenu, NullMenu, UpdateDate},
+    true},
+
+    {InputDate, 
+    {NULL, NULL, "Confirm", "Back"}, 
+    {NullMenu, NullMenu, NullMenu, UpdateDate},
+    true},
+
+    {InputMonth, 
+    {NULL, NULL, "Confirm", "Back"}, 
+    {NullMenu, NullMenu, NullMenu, UpdateDate},
+    true},
+
+    {InputYear, 
+    {NULL, NULL, "Confirm", "Back"}, 
+    {NullMenu, NullMenu, NullMenu, UpdateDate}, 
+    true},
+
+    {InputSeconds, 
+    {NULL, NULL, "Confirm", "Back"}, 
+    {NullMenu, NullMenu, NullMenu, UpdateTime}, 
+    true},
+
+    {InputMinutes, 
+    {NULL, NULL, "Confirm", "Back"}, 
+    {NullMenu, NullMenu, NullMenu, UpdateTime}, 
+    true},
+
+    {InputHours, 
+    {NULL, NULL, "Confirm", "Back"}, 
+    {NullMenu, NullMenu, NullMenu, UpdateTime}, 
+    true},
 
 };
 /**********************************************************************/
 
 /******************Day and Month String Data*******************/
 static const DayTable_s DayTable[] = {
-    {Monday,       "Monday"}, {Tuesday,   "Tuesday"}, 
-    {Wednesday, "Wednesday"}, {Thursday, "Thursday"}, 
-    {Friday,       "Friday"}, {Saturday, "Saturday"}, 
-    {Sunday,       "Sunday"}, 
+    {Monday,    "   Monday"}, {Tuesday,  "  Tuesday"}, 
+    {Wednesday, "Wednesday"}, {Thursday, " Thursday"}, 
+    {Friday,    "   Friday"}, {Saturday, " Saturday"}, 
+    {Sunday,    "   Sunday"}, 
 };
 
 static const MonthTable_s MonthTable[] = {
-    {January,     "January"}, {February, "February"}, 
-    {March,         "March"}, {April,       "April"}, 
-    {May,             "May"}, {June,         "June"}, 
-    {July,           "July"}, {August,     "August"}, 
-    {September, "September"}, {October,   "October"}, 
-    {November,   "November"}, {December, "December"}, 
+    {January,   "  January"}, {February,  " February"}, 
+    {March,     "    March"}, {April,     "    April"}, 
+    {May,       "      May"}, {June,      "     June"}, 
+    {July,      "     July"}, {August,    "   August"}, 
+    {September, "September"}, {October,   "  October"}, 
+    {November,  " November"}, {December,  " December"}, 
 };
 /*************************************************************/
 
@@ -58,6 +101,11 @@ static const LEDAndBorderTable_s LEDAndBorderTable[] = {
     {Red,    0x00, ST7735_RED}
 };
 /**********************************************/
+
+static const RTCDataLoadingTable_s RTCDataLoadingTable[] = {
+    {    InputDay,     Day}, {InputDate, Date}, {  InputMonth,   Month}, { InputYear,  Year},
+    {InputSeconds, Seconds}, {InputMinutes, Minutes}, {InputHours, Hours}
+};
 
 
 void DrawString(uint8_t x, uint8_t y, char *buf, uint16_t textColor, uint16_t bkgColor, uint8_t size)
@@ -133,6 +181,10 @@ void DrawMenuStructure(void)
 void DrawMenuOptions(MenuState menu)
 {
     char OptionStringHeader[3] = "1)";
+    if(Theremin.State == DataInput)
+    {
+        strcpy(OptionStringHeader, "#)");
+    }
 
     for(uint8_t i = 0; i < OPTIONS_TABLE_SIZE; i++)
     {
@@ -140,15 +192,25 @@ void DrawMenuOptions(MenuState menu)
         {
             for(uint8_t j = 0; j < MAX_MENU_OPTIONS; j++)
             {
+                if(Theremin.State == DataInput)
+                {
+                   if(j == 3)
+                    {
+                        OptionStringHeader[0] = '*';
+                    }
+                }
                 if(MenuOptionsTable[i].MenuOptions[j] != NULL)
                 {
-                    uint8_t xOffset = ((Theremin.Flags.LargeNumberMenu) ? LARGE_MENU_X_OFFSET : 0);
-                    uint8_t yOffset = ((Theremin.Flags.LargeNumberMenu) ? LARGE_MENU_Y_OFFSET : 0);
+                    uint8_t xOffset = ((MenuOptionsTable[i].LargeNumber) ? LARGE_MENU_X_OFFSET : 0);
+                    uint8_t yOffset = ((MenuOptionsTable[i].LargeNumber) ? LARGE_MENU_Y_OFFSET : 0);
 
                     DrawString(1 + xOffset, j + MENU_Y_OFFSET + yOffset, OptionStringHeader, 0xffff, 0x0000, 1);
                     DrawString(4 + xOffset, j + MENU_Y_OFFSET + yOffset, MenuOptionsTable[i].MenuOptions[j], 0xffff, 0x0000, 1);
                 }
-                OptionStringHeader[0]++;
+                if(Theremin.State != DataInput)
+                {
+                    OptionStringHeader[0]++;
+                }
             }
         }
     }
@@ -170,6 +232,11 @@ MenuState FindNextMenu(MenuState menu, uint8_t selection)
 void ClearMenu(void)
 {
     ST7735_FillRect(0, ST7735_TFTHEIGHT / 2 + 1, ST7735_TFTWIDTH, ST7735_TFTHEIGHT / 2, 0x0000); // +1 offset prevents erasure of horizontal line
+}
+
+void ClearDate(void)
+{
+    ST7735_FillRect(0, 0, ST7735_TFTWIDTH, ST7735_TFTHEIGHT / 2 - 1, 0x0000); // +1 offset prevents erasure of horizontal line
 }
 
 void DisplayVolumeBars()
@@ -285,7 +352,7 @@ void DisplayRTCData(void)
 
     if(MonthStr)
     {
-        DrawString(3, DATE_TIME_MENU_Y_OFFSET, MonthStr, 0xffff, 0x0000, 1);
+        DrawString(1, DATE_TIME_MENU_Y_OFFSET, MonthStr, 0xffff, 0x0000, 1);
     }
 
     DrawString(11, DATE_TIME_MENU_Y_OFFSET, DateStr, 0xffff, 0x0000, 1);
@@ -293,10 +360,10 @@ void DisplayRTCData(void)
 
     if(DayStr)
     {
-        DrawString(3, DATE_TIME_MENU_Y_OFFSET + 1, DayStr, 0xffff, 0x0000, 1);
+        DrawString(2, DATE_TIME_MENU_Y_OFFSET + 1, DayStr, 0xffff, 0x0000, 1);
     }
 
-    DrawString(11, DATE_TIME_MENU_Y_OFFSET + 1, TimeStr, 0xffff, 0x0000, 1);
+    DrawString(12, DATE_TIME_MENU_Y_OFFSET + 1, TimeStr, 0xffff, 0x0000, 1);
 }
 
 
@@ -328,3 +395,15 @@ void DrawBorders(void)
     ST7735_FillRect(0, ST7735_TFTHEIGHT - 2, ST7735_TFTWIDTH, 2, borderColor);
 }
 
+RTC_Address GetDesiredRTCAddress()
+{
+    for(uint8_t i = 0; i < RTCEnd; i++)
+    {
+        if(RTCDataLoadingTable[i].menu == Theremin.Menu)
+        {
+            return RTCDataLoadingTable[i].address;
+        }
+    }
+
+    return Seconds;
+}

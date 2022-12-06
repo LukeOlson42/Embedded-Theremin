@@ -3,6 +3,7 @@
 #include "inc/System.h"
 #include "inc/Keypad.h"
 #include "inc/MultipurposeKnob.h"
+#include "inc/I2C.h"
 
 /**888************************
  * 
@@ -39,6 +40,7 @@ int main(void)
         // update eeprom if needed
 
         EvaluateSystemState();
+
         
         UpdateVolumeBars();
 
@@ -70,6 +72,16 @@ int main(void)
 
         if(Theremin.Flags.UpdatedRTCData)
         {
+            RTC_Data data;
+            ReadDataFromRTC(&data);
+            Theremin.RTC.Time.Second = data.seconds;
+            Theremin.RTC.Time.Minute = data.minute;
+            Theremin.RTC.Time.Hour = data.hour;
+            Theremin.RTC.CalendarDate.Day = (DayOfWeek) data.day;
+            Theremin.RTC.CalendarDate.Date = data.date;
+            Theremin.RTC.CalendarDate.Month = data.month;
+            Theremin.RTC.CalendarDate.Year = data.year;
+
             DisplayRTCData();
 
             Theremin.Flags.UpdatedRTCData = false;
@@ -96,6 +108,8 @@ void ThereminInit(void)
 
     KeypadInit();
     KnobInit();
+
+    InitI2C();
 
     DrawMenuStructure();
     DrawMenuOptions(Main);

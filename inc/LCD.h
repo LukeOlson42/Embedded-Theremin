@@ -4,6 +4,7 @@
 #include "config.h"
 #include "ST7735.h"
 #include "System.h"
+#include "I2C.h"
 
 /*************** Data Structures ***************/
 typedef struct DayTable_s {
@@ -23,15 +24,17 @@ typedef struct LEDAndBorderTable_s {
 } LEDAndBorderTable_s;
 /***************************************************/
 
-typedef void (*MenuFunc)(void);
-
 typedef struct MenuOptionsTable_s {
     MenuState Menu;
     char* MenuOptions[MAX_MENU_OPTIONS];
     MenuState NextMenu[MAX_MENU_OPTIONS];
-    MenuFunc MenuOptionRoutine[MAX_MENU_OPTIONS];
+    bool LargeNumber;
 } MenuOptionsTable_s;
 
+typedef struct RTCDataLoadingTable_s {
+    MenuState menu;
+    RTC_Address address;
+} RTCDataLoadingTable_s;
 
 
 void LCDInit();
@@ -50,6 +53,8 @@ void UpdateVolumeBars(void);
 void DisplayRTCData(void);
 
 void DrawBorders(void);
+
+RTC_Address GetDesiredRTCAddress();
 
 
 

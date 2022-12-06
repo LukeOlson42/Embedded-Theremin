@@ -16,7 +16,7 @@ void KnobInit(void)
 
     NVIC_EnableIRQ(PORT3_IRQn);
 
-    NVIC_SetPriority(PORT3_IRQn, 2);
+    NVIC_SetPriority(PORT3_IRQn, 1);
 }
 
 void RightKnobTurn()
@@ -112,6 +112,8 @@ void PORT3_IRQHandler(void)
     if(P3->IFG & BIT7)  // knob switch
     {
         // if pressed, enter hotswap keychange mode
+
+        P3->IFG &= ~BIT7;
     }
 }
 
