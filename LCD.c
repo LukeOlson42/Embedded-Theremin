@@ -384,7 +384,7 @@ void DrawBorders(void)
 {
     uint16_t borderColor = GetDesiredColor();
 
-    if(Theremin.Speaker.SensorDistanceInches > 13 || Theremin.Speaker.SensorDistanceInches < 3)
+    if(Theremin.Speaker.SensorDistanceInches > 18 || Theremin.Speaker.SensorDistanceInches < 3)
     {
         borderColor = 0x0000;
     }

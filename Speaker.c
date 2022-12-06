@@ -52,35 +52,43 @@ void OutputPitch()
             break;
 
         case 3:
+        case 4:
             TIMER_A2->CCR[0] = 3000 * 1.f / 233 * 1000;
             break;
 
-        case 4:
+        case 5:
+        case 6:
             TIMER_A2->CCR[0] = 3000 * 1.f / 262 * 1000;
             break;
 
-        case 5:
+        case 7:
+        case 8:
             TIMER_A2->CCR[0] = 3000 * 1.f / 294 * 1000;
             break;
 
-        case 6:
+        case 9:
+        case 10:
             TIMER_A2->CCR[0] = 3000 * 1.f / 311 * 1000;
             break;
 
-        case 7:
+        case 11:
+        case 12:
             TIMER_A2->CCR[0] = 3000 * 1.f / 349 * 1000;
             break;
 
-        case 8:
+        case 13:
+        case 14:
             TIMER_A2->CCR[0] = 3000 * 1.f / 392 * 1000;
             break;
 
-        case 9:
+        case 15:
+        case 16:
             TIMER_A2->CCR[0] = 3000 * 1.f / 440 * 1000;
             break;
 
 
-        case 10:
+        case 17:
+        case 18:
             TIMER_A2->CCR[0] = 3000 * 1.f / 466 * 1000;
             break;
 
@@ -97,7 +105,7 @@ void OutputPitch()
     if(Theremin.Speaker.SensorDistanceInches >= 3 || Theremin.Speaker.SensorDistanceInches < 10)
     {
         previousPitch = Theremin.Speaker.SensorDistanceInches;
-        Theremin.Speaker.CurrentNote = Theremin.Speaker.SensorDistanceInches - 3;
+        Theremin.Speaker.CurrentNote = (Theremin.Speaker.SensorDistanceInches + 1) / 2 - 2;
     }
     else
     {

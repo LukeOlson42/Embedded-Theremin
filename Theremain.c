@@ -50,6 +50,12 @@ int main(void)
 
             Theremin.Flags.UpdatedVolume = false;
         }
+        
+        if(Theremin.Flags.UpdatedPitch)
+        {
+            DrawBorders();
+            Theremin.Flags.UpdatedPitch = false;
+        }
 
         if(Theremin.Flags.CalculateDistance)            // put in flag eval routine
         {
@@ -74,7 +80,7 @@ int main(void)
         {
             RTC_Data data;
             ReadDataFromRTC(&data);
-            
+
             Theremin.RTC.Time.Second = data.seconds;
             Theremin.RTC.Time.Minute = data.minute;
             Theremin.RTC.Time.Hour = data.hour;
@@ -88,11 +94,6 @@ int main(void)
             Theremin.Flags.UpdatedRTCData = false;
         }
 
-        if(Theremin.Flags.UpdatedPitch)
-        {
-            DrawBorders();
-            Theremin.Flags.UpdatedPitch = false;
-        }
 
 
     }
