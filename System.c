@@ -29,9 +29,12 @@ void GlobalSystemInit()
     Theremin.Flags.UpdatedRTCData = true;
     Theremin.Flags.VolumeUp = false;
     Theremin.Flags.VolumeDown = false;
+    Theremin.Flags.DebounceKnobSwitch = false;
     
     Theremin.KnobState = VolumeChange;
     Theremin.State = NormalOperation;
+
+    Theremin.Speaker.Key = Eb;
 
     Theremin.RTC.Time.Hour = 7;
     Theremin.RTC.Time.Minute = 34;
@@ -180,14 +183,6 @@ void HeartbeatTimerInit(void)
 }
 
 
-void T32_INT1_IRQHandler(void)
-{
-    Theremin.Flags.UpdatedRTCData = true;
-
-    TIMER32_1->INTCLR = 1;
-}
-
-
 void TimeoutTimerInit(void)
 {
     TIMER32_2->LOAD = (uint32_t)((uint32_t) 48000000 * (uint32_t) 60); // one minute
@@ -213,6 +208,35 @@ void ResetTimeoutTimerCount(void)
     EnableTimeoutTimer();
 }
 
+void GetSystemTemperature(void)
+{
+    uint8_t tempByte1;
+    uint8_t tempByte2;
+
+    I2CRead(&tempByte1, RTC_PERIPH_ADD, (RTC_Address) 0x11);
+    I2CRead(&tempByte2, RTC_PERIPH_ADD, (RTC_Address) 0x12);
+
+    Theremin.Temperature = (tempByte1 << 2) | (tempByte2 >> 6);
+}
+
+void SystemWatchdogInit(void)
+{
+    WDT_A->CTL = 0x5A00 | 0x2B; // unlocks, set to ACLK, watchdog mode, clears counter, /2^19 divider
+}
+
+
+void SystemKickWatchdog(void)
+{
+    WDT_A->CTL = WDT_A_CTL_PW | BIT3 | 0x2B; // reset watchdog timer
+}
+
+
+void T32_INT1_IRQHandler(void)
+{
+    Theremin.Flags.UpdatedRTCData = true;
+
+    TIMER32_1->INTCLR = 1;
+}
 
 void T32_INT2_IRQHandler(void)
 {

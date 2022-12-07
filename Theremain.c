@@ -19,14 +19,10 @@ int main(void)
 
     ThereminInit();
 
-    Theremin.Flags.CalculateDistance = false;
-
     __enable_irq();     // enabling global interrupts
 
     P1->DIR |= BIT0;
     P1->OUT &= ~BIT0;
-
-    Theremin.RTC.CalendarDate.Year = 1984;
 
     for(;;)
     {
@@ -40,7 +36,6 @@ int main(void)
         // update eeprom if needed
 
         EvaluateSystemState();
-
         
         UpdateVolumeBars();
 
@@ -54,6 +49,7 @@ int main(void)
         if(Theremin.Flags.UpdatedPitch)
         {
             DrawBorders();
+
             Theremin.Flags.UpdatedPitch = false;
         }
 
@@ -68,6 +64,7 @@ int main(void)
         {
             ClearMenu();
             DrawMenuOptions(Theremin.Menu);
+
             if(Theremin.Menu == VolumeDisplay)
             {
                 DisplayVolumeBars();
@@ -81,6 +78,8 @@ int main(void)
             RTC_Data data;
             ReadDataFromRTC(&data);
 
+            GetSystemTemperature();
+
             Theremin.RTC.Time.Second = data.seconds;
             Theremin.RTC.Time.Minute = data.minute;
             Theremin.RTC.Time.Hour = data.hour;
@@ -91,7 +90,26 @@ int main(void)
 
             DisplayRTCData();
 
+            SystemKickWatchdog();
+
             Theremin.Flags.UpdatedRTCData = false;
+        }
+
+        if(Theremin.Flags.DebounceKnobSwitch)
+        {
+            if(DebounceKnobSwitch())
+            {
+                if(Theremin.KnobState == VolumeChange)
+                {
+                    Theremin.KnobState = CircleOfFifths;
+                }
+                else
+                {
+                    Theremin.KnobState = VolumeChange;
+                }
+
+                Theremin.Flags.DebounceKnobSwitch = false;
+            }
         }
 
     }
@@ -113,6 +131,8 @@ void ThereminInit(void)
 
     HeartbeatTimerInit();
     TimeoutTimerInit();
+
+    SystemWatchdogInit();
 
     DrawMenuStructure();
     DrawMenuOptions(Main);

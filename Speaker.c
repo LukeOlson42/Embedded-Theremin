@@ -1,5 +1,13 @@
 #include "inc/Speaker.h"
 
+/********Key Table********/
+static const KeyChangeTable_s KeyChangeTable[] = {
+    {A,  220.00}, {Bb, 233.08}, {B,  246.92}, {C,  261.63},
+    {Db, 277.18}, {D,  293.66}, {Eb, 311.13}, {E,  329.63},
+    {F,  349.23}, {Gb, 369.99}, {G,  392.00}, {Ab, 415.30},
+};
+/*************************/
+
 void SpeakerInit()
 {
     TIMER_A2->CTL = 0x0214;
@@ -41,75 +49,109 @@ void AudioSystemInit()
     NVIC_SetPriority(TA0_N_IRQn, 4);
 }
 
+static float SpeakerGetKeyBasePitch(void)
+{
+    for(uint8_t i = 0; i < NumberOfKeys; i++)
+    {
+        if(KeyChangeTable[i].Key == Theremin.Speaker.Key)
+        {
+            return KeyChangeTable[i].baseFrequency;
+        }
+    }
+
+    return 220.f; // return default frequency of A
+}
+
 void OutputPitch()
 {
     static uint8_t previousPitch = 0;
 
-    switch(Theremin.Speaker.SensorDistanceInches)
-    {
-        case 0:
-            TIMER_A2->CCR[0] = 0;
-            break;
+    float baseFrequency = SpeakerGetKeyBasePitch();
 
-        case 3:
-        case 4:
-            TIMER_A2->CCR[0] = 3000 * 1.f / 233 * 1000;
-            break;
+    // switch(Theremin.Speaker.SensorDistanceInches)
+    // {
+    //     case 0:
+    //         TIMER_A2->CCR[0] = 0;
+    //         break;
 
-        case 5:
-        case 6:
-            TIMER_A2->CCR[0] = 3000 * 1.f / 262 * 1000;
-            break;
+    //     case 3:
+    //     case 4:
+    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 233;
+    //         break;
 
-        case 7:
-        case 8:
-            TIMER_A2->CCR[0] = 3000 * 1.f / 294 * 1000;
-            break;
+    //     case 5:
+    //     case 6:
+    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 262;
+    //         break;
 
-        case 9:
-        case 10:
-            TIMER_A2->CCR[0] = 3000 * 1.f / 311 * 1000;
-            break;
+    //     case 7:
+    //     case 8:
+    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 294;
+    //         break;
 
-        case 11:
-        case 12:
-            TIMER_A2->CCR[0] = 3000 * 1.f / 349 * 1000;
-            break;
+    //     case 9:
+    //     case 10:
+    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 311;
+    //         break;
 
-        case 13:
-        case 14:
-            TIMER_A2->CCR[0] = 3000 * 1.f / 392 * 1000;
-            break;
+    //     case 11:
+    //     case 12:
+    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 349;
+    //         break;
 
-        case 15:
-        case 16:
-            TIMER_A2->CCR[0] = 3000 * 1.f / 440 * 1000;
-            break;
+    //     case 13:
+    //     case 14:
+    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 392;
+    //         break;
+
+    //     case 15:
+    //     case 16:
+    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 440;
+    //         break;
 
 
-        case 17:
-        case 18:
-            TIMER_A2->CCR[0] = 3000 * 1.f / 466 * 1000;
-            break;
+    //     case 17:
+    //     case 18:
+    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 466;
+    //         break;
 
-        default:
-            TIMER_A2->CCR[0] = 0;
-            break;
-    }
+    //     default:
+    //         TIMER_A2->CCR[0] = 0;
+    //         break;
+    // }
+
+    static const uint8_t stepData[8] = {0, 2, 4, 5, 7, 9, 11, 12};
+    static const float TwelfthRootOfTwo = 1.05946;
+    float NoteDifference = TwelfthRootOfTwo;
 
     if(previousPitch != Theremin.Speaker.SensorDistanceInches)
     {
         Theremin.Flags.UpdatedPitch = true;
     }
 
-    if(Theremin.Speaker.SensorDistanceInches >= 3 || Theremin.Speaker.SensorDistanceInches < 10)
+    if(Theremin.Speaker.SensorDistanceInches >= 3 && Theremin.Speaker.SensorDistanceInches < 19)
     {
         previousPitch = Theremin.Speaker.SensorDistanceInches;
         Theremin.Speaker.CurrentNote = (Theremin.Speaker.SensorDistanceInches + 1) / 2 - 2;
+
+        if(Theremin.Speaker.CurrentNote == 0)
+        {
+            NoteDifference = 1;
+        }
+        else
+        {
+            for(uint8_t i = 1; i < stepData[Theremin.Speaker.CurrentNote]; i++)
+            {
+                NoteDifference *= TwelfthRootOfTwo;
+            }
+        }
+
+        TIMER_A2->CCR[0] = 3000000 * 1.f / (baseFrequency * NoteDifference);
     }
     else
     {
         previousPitch = 0;
+        TIMER_A2->CCR[0] = 0;
     }
 
     TIMER_A2->CCR[1] = TIMER_A2->CCR[0] * Theremin.Speaker.SpeakerVolume;

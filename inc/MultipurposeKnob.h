@@ -9,5 +9,7 @@ void KnobInit(void);
 void RightKnobTurn(void);
 void LeftKnobTurn(void);
 
+bool DebounceKnobSwitch(void);
+
 
 #endif

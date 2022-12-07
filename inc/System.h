@@ -4,7 +4,7 @@
 #include "config.h"
 /**************Enumerations*********************/
 typedef enum MusicalNote {
-    A, Bb, B, C, Db, D, Eb, E, F, Gb, G, Ab
+    A, Bb, B, C, Db, D, Eb, E, F, Gb, G, Ab, NumberOfKeys
 } MusicalNote;
 
 typedef enum LEDAndBorderColor {
@@ -84,6 +84,7 @@ typedef struct System {
         bool VolumeDown;
         bool UpdatedPitch;
         bool SystemTimeout;
+        bool DebounceKnobSwitch;
     } Flags;
 
     float Temperature;
@@ -115,5 +116,10 @@ void TimeoutTimerInit(void);
 void EnableTimeoutTimer(void);
 void DisableTimeoutTimer(void);
 void ResetTimeoutTimerCount(void);
+
+void GetSystemTemperature(void);
+
+void SystemWatchdogInit(void);
+void SystemKickWatchdog(void);
 
 #endif

@@ -45,7 +45,12 @@ void RightKnobTurn()
     }
     else
     {
+        Theremin.Speaker.Key++;
 
+        if(Theremin.Speaker.Key > Ab)
+        {
+            Theremin.Speaker.Key = Ab;
+        }
     }
 }
 
@@ -68,9 +73,28 @@ void LeftKnobTurn()
     }
     else
     {
-        
+        if(Theremin.Speaker.Key != A)
+        {
+            Theremin.Speaker.Key--;
+        }
     }
 }
+
+
+bool DebounceKnobSwitch(void)
+{
+    static uint16_t State = 0;
+
+    State = (State << 1) | 0xf800 | (((P3->IN & BIT7) >> 7) ^ BIT0);
+
+    if(State == 0xfc00)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 
 void PORT3_IRQHandler(void)
 {
@@ -112,7 +136,7 @@ void PORT3_IRQHandler(void)
     if(P3->IFG & BIT7)  // knob switch
     {
         // if pressed, enter hotswap keychange mode
-
+        Theremin.Flags.DebounceKnobSwitch = true;
         P3->IFG &= ~BIT7;
     }
 }
