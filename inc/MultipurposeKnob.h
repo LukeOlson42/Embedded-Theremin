@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "System.h"
+#include "Motor.h"
 
 void KnobInit(void);
 

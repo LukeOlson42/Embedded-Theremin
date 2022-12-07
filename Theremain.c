@@ -39,78 +39,7 @@ int main(void)
         
         UpdateVolumeBars();
 
-        if(Theremin.Flags.UpdatedVolume)
-        {
-            UpdateVolumeBars();
-
-            Theremin.Flags.UpdatedVolume = false;
-        }
-        
-        if(Theremin.Flags.UpdatedPitch)
-        {
-            DrawBorders();
-
-            Theremin.Flags.UpdatedPitch = false;
-        }
-
-        if(Theremin.Flags.CalculateDistance)            // put in flag eval routine
-        {
-            OutputPitch();
-
-            Theremin.Flags.CalculateDistance = false;
-        }
-
-        if(Theremin.Flags.ChangeMenu)
-        {
-            ClearMenu();
-            DrawMenuOptions(Theremin.Menu);
-
-            if(Theremin.Menu == VolumeDisplay)
-            {
-                DisplayVolumeBars();
-            }
-
-            Theremin.Flags.ChangeMenu = false;
-        }
-
-        if(Theremin.Flags.UpdatedRTCData)
-        {
-            RTC_Data data;
-            ReadDataFromRTC(&data);
-
-            GetSystemTemperature();
-
-            Theremin.RTC.Time.Second = data.seconds;
-            Theremin.RTC.Time.Minute = data.minute;
-            Theremin.RTC.Time.Hour = data.hour;
-            Theremin.RTC.CalendarDate.Day = (DayOfWeek) data.day;
-            Theremin.RTC.CalendarDate.Date = data.date;
-            Theremin.RTC.CalendarDate.Month = data.month;
-            Theremin.RTC.CalendarDate.Year = data.year;
-
-            DisplayRTCData();
-
-            SystemKickWatchdog();
-
-            Theremin.Flags.UpdatedRTCData = false;
-        }
-
-        if(Theremin.Flags.DebounceKnobSwitch)
-        {
-            if(DebounceKnobSwitch())
-            {
-                if(Theremin.KnobState == VolumeChange)
-                {
-                    Theremin.KnobState = CircleOfFifths;
-                }
-                else
-                {
-                    Theremin.KnobState = VolumeChange;
-                }
-
-                Theremin.Flags.DebounceKnobSwitch = false;
-            }
-        }
+        EvaluateSystemFlags();
 
     }
 
@@ -134,6 +63,11 @@ void ThereminInit(void)
 
     SystemWatchdogInit();
 
+    MotorInit();
+    InitLEDs();
+
     DrawMenuStructure();
     DrawMenuOptions(Main);
+
+    // SystemLoadPresets();
 }

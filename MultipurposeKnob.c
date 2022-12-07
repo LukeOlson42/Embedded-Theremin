@@ -31,8 +31,7 @@ void RightKnobTurn()
             Theremin.Speaker.SpeakerVolume = 0.5;
             Theremin.Speaker.DiscreteVolume = 10;
         }
-
-        if(Theremin.Speaker.SpeakerVolume == 0)
+        else if(Theremin.Speaker.SpeakerVolume == 0)
         {
             Theremin.Speaker.SpeakerVolume = 0.0009765625;
             Theremin.Speaker.DiscreteVolume = 1;
@@ -40,6 +39,7 @@ void RightKnobTurn()
         else
         {
             Theremin.Flags.VolumeUp = true;
+            RotateMotorRightOneStep();
         }
 
     }
@@ -69,6 +69,7 @@ void LeftKnobTurn()
         else
         {
             Theremin.Flags.VolumeDown = true;
+            RotateMotorLeftOneStep();
         }
     }
     else

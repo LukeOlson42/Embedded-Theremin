@@ -91,14 +91,14 @@ static const MonthTable_s MonthTable[] = {
 
 /************LED and Border Table**************/
 static const LEDAndBorderTable_s LEDAndBorderTable[] = {
-    {Red,    0x00, ST7735_RED},
-    {White,  0x00, ST7735_WHITE},
-    {Green,  0x00, ST7735_GREEN},
-    {Aqua,   0x00, ST7735_CYAN},
-    {Blue,   0x00, ST7735_BLUE},
-    {Violet, 0x00, ST7735_MAGENTA},
-    {Yellow, 0x00, ST7735_YELLOW},
-    {Red,    0x00, ST7735_RED}
+    {Red,    0x20, ST7735_RED},
+    {White,  0xE0, ST7735_WHITE},
+    {Green,  0x40, ST7735_GREEN},
+    {Aqua,   0xC0, ST7735_CYAN},
+    {Blue,   0x80, ST7735_BLUE},
+    {Violet, 0xA0, ST7735_MAGENTA},
+    {Yellow, 0x60, ST7735_YELLOW},
+    {Red,    0x20, ST7735_RED}
 };
 /**********************************************/
 
@@ -373,11 +373,20 @@ static uint16_t GetDesiredColor(void)
     {
         if(Theremin.Speaker.CurrentNote == i)
         {
+            P8->OUT = LEDAndBorderTable[i].LEDPinBitmask >> 3;
             return LEDAndBorderTable[i].LCDColorData;
         }
     }
 
     return 0x0000;
+}
+
+
+void InitLEDs(void)
+{
+    P8->SEL0 &= ~(0xE0 >> 3);
+    P8->SEL1 &= ~(0xE0 >> 3);
+    P8->DIR |= (0xE0 >> 3);
 }
 
 void DrawBorders(void)
@@ -387,6 +396,7 @@ void DrawBorders(void)
     if(Theremin.Speaker.SensorDistanceInches > 18 || Theremin.Speaker.SensorDistanceInches < 3)
     {
         borderColor = 0x0000;
+        P8->OUT = 0;
     }
 
     ST7735_FillRect(0, 0, 2, ST7735_TFTHEIGHT, borderColor);

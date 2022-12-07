@@ -24,7 +24,7 @@ void SpeakerInit()
 void UltrasonicInit()
 {
     TIMER_A0->CTL = 0x0294; // SMCLK, /4 divider, up mode, no interrupts
-    TIMER_A0->CCR[0] = 2792 * 4;
+    TIMER_A0->CCR[0] = 4000 * 4;//2792 * 4;
     TIMER_A0->CCR[1] = 8;
     TIMER_A0->CCTL[1] = TIMER_A_CCTLN_OUTMOD_7;
     TIMER_A0->CCTL[2] = 0xC910;
@@ -68,58 +68,6 @@ void OutputPitch()
 
     float baseFrequency = SpeakerGetKeyBasePitch();
 
-    // switch(Theremin.Speaker.SensorDistanceInches)
-    // {
-    //     case 0:
-    //         TIMER_A2->CCR[0] = 0;
-    //         break;
-
-    //     case 3:
-    //     case 4:
-    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 233;
-    //         break;
-
-    //     case 5:
-    //     case 6:
-    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 262;
-    //         break;
-
-    //     case 7:
-    //     case 8:
-    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 294;
-    //         break;
-
-    //     case 9:
-    //     case 10:
-    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 311;
-    //         break;
-
-    //     case 11:
-    //     case 12:
-    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 349;
-    //         break;
-
-    //     case 13:
-    //     case 14:
-    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 392;
-    //         break;
-
-    //     case 15:
-    //     case 16:
-    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 440;
-    //         break;
-
-
-    //     case 17:
-    //     case 18:
-    //         TIMER_A2->CCR[0] = 3000000 * 1.f / 466;
-    //         break;
-
-    //     default:
-    //         TIMER_A2->CCR[0] = 0;
-    //         break;
-    // }
-
     static const uint8_t stepData[8] = {0, 2, 4, 5, 7, 9, 11, 12};
     static const float TwelfthRootOfTwo = 1.05946;
     float NoteDifference = TwelfthRootOfTwo;
@@ -129,10 +77,10 @@ void OutputPitch()
         Theremin.Flags.UpdatedPitch = true;
     }
 
-    if(Theremin.Speaker.SensorDistanceInches >= 3 && Theremin.Speaker.SensorDistanceInches < 19)
+    if(Theremin.Speaker.SensorDistanceInches >= 3 && Theremin.Speaker.SensorDistanceInches <= 10)
     {
         previousPitch = Theremin.Speaker.SensorDistanceInches;
-        Theremin.Speaker.CurrentNote = (Theremin.Speaker.SensorDistanceInches + 1) / 2 - 2;
+        Theremin.Speaker.CurrentNote = Theremin.Speaker.SensorDistanceInches - 3;
 
         if(Theremin.Speaker.CurrentNote == 0)
         {

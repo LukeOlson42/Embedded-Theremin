@@ -2,6 +2,8 @@
 #include "inc/I2C.h"
 #include "inc/LCD.h"
 #include "inc/Keypad.h"
+#include "inc/Speaker.h"
+#include "inc/MultipurposeKnob.h"
 
 /******Global System Variable*******/
 System Theremin;
@@ -39,12 +41,87 @@ void GlobalSystemInit()
     Theremin.RTC.Time.Hour = 7;
     Theremin.RTC.Time.Minute = 34;
     Theremin.RTC.Time.Second = 22;
+
+    Theremin.MotorBits = 0b00001100;
 }
 
 
 void EvaluateSystemFlags(void)
 {
+    if(Theremin.Flags.UpdatedVolume)
+    {
+        UpdateVolumeBars();
 
+        Theremin.Flags.UpdatedVolume = false;
+    }
+    
+    if(Theremin.Flags.UpdatedPitch)
+    {
+        DrawBorders();
+
+        Theremin.Flags.UpdatedPitch = false;
+    }
+
+    if(Theremin.Flags.CalculateDistance)            // put in flag eval routine
+    {
+        OutputPitch();
+
+        Theremin.Flags.CalculateDistance = false;
+    }
+
+    if(Theremin.Flags.ChangeMenu)
+    {
+        ClearMenu();
+        DrawMenuOptions(Theremin.Menu);
+
+        if(Theremin.Menu == VolumeDisplay)
+        {
+            DisplayVolumeBars();
+        }
+
+        Theremin.Flags.ChangeMenu = false;
+    }
+
+    if(Theremin.Flags.UpdatedRTCData)
+    {
+        RTC_Data data;
+        ReadDataFromRTC(&data);
+
+        GetSystemTemperature();
+
+        Theremin.RTC.Time.Second = data.seconds;
+        Theremin.RTC.Time.Minute = data.minute;
+        Theremin.RTC.Time.Hour = data.hour;
+        Theremin.RTC.CalendarDate.Day = (DayOfWeek) data.day;
+        Theremin.RTC.CalendarDate.Date = data.date;
+        Theremin.RTC.CalendarDate.Month = data.month;
+        Theremin.RTC.CalendarDate.Year = data.year;
+
+        DisplayRTCData();
+
+        // SystemSavePresets();
+
+        SystemKickWatchdog();
+
+        Theremin.Flags.UpdatedRTCData = false;
+    }
+
+    if(Theremin.Flags.DebounceKnobSwitch)
+    {
+        if(DebounceKnobSwitch())
+        {
+            if(Theremin.KnobState == VolumeChange)
+            {
+                Theremin.KnobState = CircleOfFifths;
+            }
+            else
+            {
+                Theremin.KnobState = VolumeChange;
+            }
+
+            Theremin.Flags.DebounceKnobSwitch = false;
+        }
+    }
 }
 
 
@@ -228,6 +305,20 @@ void SystemWatchdogInit(void)
 void SystemKickWatchdog(void)
 {
     WDT_A->CTL = WDT_A_CTL_PW | BIT3 | 0x2B; // reset watchdog timer
+}
+
+
+void SystemSavePresets(void)
+{
+    I2CWrite((uint8_t*) &Theremin.Speaker.Key, EEPROM_ADDR, 0x00);
+    I2CWrite(&Theremin.Speaker.DiscreteVolume, EEPROM_ADDR, 0x01);
+}
+
+
+void SystemLoadPresets(void)
+{
+    I2CRead((uint8_t*) &Theremin.Speaker.Key, EEPROM_ADDR, 0x00);
+    I2CRead(&Theremin.Speaker.DiscreteVolume, EEPROM_ADDR, 0x01);
 }
 
 

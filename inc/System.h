@@ -95,6 +95,8 @@ typedef struct System {
     KnobMode KnobState;
 
     SystemState State;
+
+    uint8_t MotorBits;
 } System;
 /*****************************************/
 
@@ -118,6 +120,9 @@ void DisableTimeoutTimer(void);
 void ResetTimeoutTimerCount(void);
 
 void GetSystemTemperature(void);
+
+void SystemSavePresets(void);
+void SystemLoadPresets(void);
 
 void SystemWatchdogInit(void);
 void SystemKickWatchdog(void);

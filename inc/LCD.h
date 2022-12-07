@@ -50,6 +50,8 @@ MenuState FindNextMenu(MenuState menu, uint8_t selection);
 void DisplayVolumeBars(void);
 void UpdateVolumeBars(void);
 
+void InitLEDs(void);
+
 void DisplayRTCData(void);
 
 void DrawBorders(void);

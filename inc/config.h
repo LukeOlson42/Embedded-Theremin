@@ -35,6 +35,9 @@
 #define BASE_NUMBER_INPUT_OFFSET_Y 120
 
 #define RTC_PERIPH_ADD 0b1101000 // peripheral address
+#define EEPROM_ADDR 0b01010001
+
+#define MOTOR_STEPS_PER_VOLUME_STEP 4
 
 
 #endif
