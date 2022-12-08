@@ -53,6 +53,7 @@ typedef struct System {
     struct Speaker {
         MusicalNote Key;
         uint8_t CurrentNote; // 0 - 7, with 7 being upper octave
+        MusicalNote NoteRelativeToKey;
 
         float SpeakerVolume;
         uint8_t DiscreteVolume;

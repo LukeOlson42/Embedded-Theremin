@@ -17,6 +17,11 @@ typedef struct MonthTable_s {
     char*       monthString;
 } MonthTable_s;
 
+typedef struct KeyStringTable_s {
+    MusicalNote key;
+    char* string;
+} KeyStringTable_s;
+
 typedef struct LEDAndBorderTable_s {
     LEDAndBorderColor color;
     uint8_t LEDPinBitmask;
@@ -49,6 +54,8 @@ MenuState FindNextMenu(MenuState menu, uint8_t selection);
 
 void DisplayVolumeBars(void);
 void UpdateVolumeBars(void);
+
+void UpdateDrawnPitch(void);
 
 void InitLEDs(void);
 

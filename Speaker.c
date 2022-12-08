@@ -96,6 +96,13 @@ void OutputPitch()
             }
         }
 
+        Theremin.Speaker.NoteRelativeToKey = Theremin.Speaker.Key + stepData[Theremin.Speaker.CurrentNote];
+
+        if(Theremin.Speaker.NoteRelativeToKey > 11)
+        {
+            Theremin.Speaker.NoteRelativeToKey -= 12;
+        }
+
         TIMER_A2->CCR[0] = 3000000 * 1.f / (baseFrequency * NoteDifference * pitchOffset);
     }
     else

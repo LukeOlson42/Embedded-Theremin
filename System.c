@@ -305,6 +305,17 @@ void GetSystemTemperature(void)
 void SystemWatchdogInit(void)
 {
     WDT_A->CTL = 0x5A00 | 0x2B; // unlocks, set to ACLK, watchdog mode, clears counter, /2^19 divider
+
+    P1->SEL0 &=~ BIT4;
+    P1->SEL1 &=~ BIT4;
+    P1->DIR  &=~ BIT4;
+    P1->REN  |=  BIT4;
+    P1->OUT  |=  BIT4;
+    P1->IES  |=  BIT4;
+    P1->IE   |=  BIT4;
+    P1->IFG = 0;
+
+    NVIC_EnableIRQ(PORT1_IRQn);
 }
 
 
@@ -325,6 +336,17 @@ void SystemLoadPresets(void)
 {
     I2CRead((uint8_t*) &Theremin.Speaker.Key, EEPROM_ADDR, 0x00);
     I2CRead(&Theremin.Speaker.DiscreteVolume, EEPROM_ADDR, 0x01);
+}
+
+
+void PORT1_IRQHandler(void)
+{
+    if(P1->IFG & BIT4)
+    {
+        WDT_A->CTL |= 0x1100;
+
+        P1->IFG = 0;
+    }
 }
 
 

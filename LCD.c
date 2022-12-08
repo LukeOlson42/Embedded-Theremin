@@ -87,6 +87,12 @@ static const MonthTable_s MonthTable[] = {
     {September, "September"}, {October,   "  October"}, 
     {November,  " November"}, {December,  " December"}, 
 };
+
+static const KeyStringTable_s KeyStringTable[] = {
+    {A, "A "}, {Bb, "Bb"}, {B, "B "}, {C, "C "},
+    {Db, "Db"}, {D, "D "}, {Eb, "Eb"}, {E, "E "},
+    {F, "F "}, {Gb, "G "}, {G, "G "}, {Ab, "Ab"},
+};
 /*************************************************************/
 
 /************LED and Border Table**************/
@@ -263,6 +269,20 @@ void UpdateVolumeBars()
         {
             ST7735_FillRect(VOLUME_BARS_X + (VOLUME_BARS_WIDTH + VOLUME_BARS_SEPARATION) * BarPosition, VOLUME_BARS_Y, VOLUME_BARS_WIDTH, VOLUME_BARS_HEIGHT, 0xffff);
             Theremin.Flags.VolumeUp = false;
+        }
+    }
+}
+
+void UpdateDrawnPitch()
+{
+    if(Theremin.Menu == PitchDisplay)
+    {
+        for(uint8_t i = 0; i < 12; i++)
+        {
+            if(KeyStringTable[i].key == Theremin.Speaker.NoteRelativeToKey)
+            {
+                DrawString(9, 10, KeyStringTable[i].string, 0xffff, 0x0000, 4);
+            }
         }
     }
 }

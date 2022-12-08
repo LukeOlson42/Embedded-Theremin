@@ -6,14 +6,6 @@
 #include "inc/I2C.h"
 #include "inc/SevenSegment.h"
 
-
-/**888************************
- * 
- * IF LCD IS MESSED UP SWITCH BRW IN .C FILE TO 4, AND CHANGE SMCLK BACK TO 0X20000000
- * 
- * 
-*/
-
 void ThereminInit(void);
 
 int main(void)
@@ -28,21 +20,13 @@ int main(void)
 
     for(;;)
     {
-
-        // Output pitch on speaker - depends on volume, key, temperature
-
-        // update LCD
-
-        // update seven-segment
-
-        // update eeprom if needed
-
         EvaluateSystemState();
         
         UpdateVolumeBars();
 
-        EvaluateSystemFlags();
+        UpdateDrawnPitch();
 
+        EvaluateSystemFlags();
     }
 
     return 0;
@@ -51,8 +35,6 @@ int main(void)
 void ThereminInit(void)
 {
     GlobalSystemInit();
-
-    // P7->OUT &= ~BIT2;
 
     LCDInit();
     AudioSystemInit();
@@ -75,10 +57,5 @@ void ThereminInit(void)
 
     // InitSevenSegment();
 
-    // SendSevenSegmentMessage(Digit5, 0x09);
-    // SendSevenSegmentMessage(Digit4, 0x08);
-    // SendSevenSegmentMessage(Digit3, 0x07);
-
     // SystemLoadPresets();
-    // P7->OUT |= BIT2;
 }
