@@ -56,5 +56,7 @@ void ThereminInit(void)
     DrawMenuStructure();
     DrawMenuOptions(Main);
 
+    // SystemSysTickInit();
+
     InitSevenSegment();
 }

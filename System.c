@@ -13,7 +13,7 @@ System Theremin;
 
 SystemStateExecTable_s SystemStateExecTable[NumberOfStates] = {
     {NormalOperation,  SystemNormalOperation},
-    {  DataInput, SystemDataInput},
+    {      DataInput,        SystemDataInput},
 };
 
 
@@ -359,6 +359,19 @@ void SystemLoadPresets(void)
     I2CRead(&Theremin.Speaker.DiscreteVolume, EEPROM_ADDR, 0x01);
 }
 
+// void SystemSysTickInit(void)
+// {
+//     SysTick->CTRL = 0; 
+//     SysTick->LOAD = 48000 * 10;
+//     SysTick->VAL = 0;
+// }
+
+// void SystemSysTickDelay(void)
+// {
+//     SysTick->CTRL = 0x5;
+//     while(!(SysTick->CTRL & 0x00010000));
+//     SysTick->CTRL = 0;
+// }
 
 void PORT1_IRQHandler(void)
 {

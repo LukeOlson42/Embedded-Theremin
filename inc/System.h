@@ -129,4 +129,7 @@ void SystemLoadPresets(void);
 void SystemWatchdogInit(void);
 void SystemKickWatchdog(void);
 
+// void SystemSysTickInit(void);
+// void SystemSysTickDelay(void);
+
 #endif
