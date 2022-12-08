@@ -88,15 +88,10 @@ void EvaluateSystemFlags(void)
 
     if(Theremin.Flags.UpdatedRTCData)
     {
-        // P7->OUT &= ~BIT2;
         RTC_Data data;
         ReadDataFromRTC(&data);
 
         GetSystemTemperature();
-
-        // SendSevenSegmentMessage(Digit1, (uint8_t) Theremin.Temperature / 10);
-        // SendSevenSegmentMessage(Digit2, (uint8_t) Theremin.Temperature % 10);
-
         Theremin.RTC.Time.Second = data.seconds;
         Theremin.RTC.Time.Minute = data.minute;
         Theremin.RTC.Time.Hour = data.hour;
@@ -111,7 +106,6 @@ void EvaluateSystemFlags(void)
 
         SystemKickWatchdog();
 
-        // P7->OUT |= BIT2;
         Theremin.Flags.UpdatedRTCData = false;
     }
 
@@ -283,7 +277,7 @@ void HeartbeatTimerInit(void)
     TIMER32_1->CONTROL = 0xE2; // interrupts, periodic, wrapping
 
     NVIC_EnableIRQ(T32_INT1_IRQn);
-    NVIC_SetPriority(T32_INT1_IRQn, 1);
+    NVIC_SetPriority(T32_INT1_IRQn, 2);
 }
 
 
@@ -293,7 +287,7 @@ void TimeoutTimerInit(void)
     TIMER32_2->CONTROL = 0x62;
 
     NVIC_EnableIRQ(T32_INT2_IRQn);
-    NVIC_SetPriority(T32_INT2_IRQn, 2);
+    NVIC_SetPriority(T32_INT2_IRQn, 3);
 }
 
 void EnableTimeoutTimer(void)
