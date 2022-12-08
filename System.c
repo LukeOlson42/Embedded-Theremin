@@ -4,6 +4,7 @@
 #include "inc/Keypad.h"
 #include "inc/Speaker.h"
 #include "inc/MultipurposeKnob.h"
+#include "inc/SevenSegment.h"
 
 /******Global System Variable*******/
 System Theremin;
@@ -84,10 +85,14 @@ void EvaluateSystemFlags(void)
 
     if(Theremin.Flags.UpdatedRTCData)
     {
+        // P7->OUT &= ~BIT2;
         RTC_Data data;
         ReadDataFromRTC(&data);
 
         GetSystemTemperature();
+
+        // SendSevenSegmentMessage(Digit1, (uint8_t) Theremin.Temperature / 10);
+        // SendSevenSegmentMessage(Digit2, (uint8_t) Theremin.Temperature % 10);
 
         Theremin.RTC.Time.Second = data.seconds;
         Theremin.RTC.Time.Minute = data.minute;
@@ -103,6 +108,7 @@ void EvaluateSystemFlags(void)
 
         SystemKickWatchdog();
 
+        // P7->OUT |= BIT2;
         Theremin.Flags.UpdatedRTCData = false;
     }
 
@@ -291,9 +297,9 @@ void GetSystemTemperature(void)
     uint8_t tempByte2;
 
     I2CRead(&tempByte1, RTC_PERIPH_ADD, (RTC_Address) 0x11);
-    I2CRead(&tempByte2, RTC_PERIPH_ADD, (RTC_Address) 0x12);
+    // I2CRead(&tempByte2, RTC_PERIPH_ADD, (RTC_Address) 0x12);
 
-    Theremin.Temperature = (tempByte1 << 2) | (tempByte2 >> 6);
+    Theremin.Temperature = tempByte1; //(tempByte1 << 2) | (tempByte2 >> 6);
 }
 
 void SystemWatchdogInit(void)

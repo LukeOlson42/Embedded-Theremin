@@ -72,6 +72,8 @@ void OutputPitch()
     static const float TwelfthRootOfTwo = 1.05946;
     float NoteDifference = TwelfthRootOfTwo;
 
+    float pitchOffset = Theremin.Temperature / 23.f;
+
     if(previousPitch != Theremin.Speaker.SensorDistanceInches)
     {
         Theremin.Flags.UpdatedPitch = true;
@@ -94,7 +96,7 @@ void OutputPitch()
             }
         }
 
-        TIMER_A2->CCR[0] = 3000000 * 1.f / (baseFrequency * NoteDifference);
+        TIMER_A2->CCR[0] = 3000000 * 1.f / (baseFrequency * NoteDifference * pitchOffset);
     }
     else
     {

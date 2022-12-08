@@ -101,9 +101,9 @@ void PORT3_IRQHandler(void)
 {
     if(P3->IFG & BIT5)
     {
-        if(P3->IES & BIT5)
+        if(P3->IES & BIT5) // if falling edge
         {
-            if(P3->IN & BIT6)
+            if(P3->IN & BIT6)   // if dt high
             {
                 RightKnobTurn();
             }
@@ -129,7 +129,7 @@ void PORT3_IRQHandler(void)
             Theremin.Flags.UpdatedVolume = true;
         }
 
-        P3->IES ^= BIT5;
+        P3->IES ^= BIT5; // clk pin
 
         P3->IFG &= ~BIT5;
     }

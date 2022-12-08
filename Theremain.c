@@ -4,6 +4,8 @@
 #include "inc/Keypad.h"
 #include "inc/MultipurposeKnob.h"
 #include "inc/I2C.h"
+#include "inc/SevenSegment.h"
+
 
 /**888************************
  * 
@@ -50,6 +52,8 @@ void ThereminInit(void)
 {
     GlobalSystemInit();
 
+    // P7->OUT &= ~BIT2;
+
     LCDInit();
     AudioSystemInit();
 
@@ -69,5 +73,12 @@ void ThereminInit(void)
     DrawMenuStructure();
     DrawMenuOptions(Main);
 
+    // InitSevenSegment();
+
+    // SendSevenSegmentMessage(Digit5, 0x09);
+    // SendSevenSegmentMessage(Digit4, 0x08);
+    // SendSevenSegmentMessage(Digit3, 0x07);
+
     // SystemLoadPresets();
+    // P7->OUT |= BIT2;
 }
