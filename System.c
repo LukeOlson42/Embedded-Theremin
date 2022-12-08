@@ -33,12 +33,9 @@ void GlobalSystemInit()
     Theremin.Flags.VolumeUp = false;
     Theremin.Flags.VolumeDown = false;
     Theremin.Flags.DebounceKnobSwitch = false;
-    Theremin.Flags.TimeDateScroll = false;
     
     Theremin.KnobState = VolumeChange;
     Theremin.State = NormalOperation;
-
-    Theremin.ScrollOffset = 0;
 
     Theremin.Speaker.Key = Eb;
 
@@ -149,24 +146,6 @@ void SystemNormalOperation(void)
     {
         if(Theremin.LastPressedKey <= MAX_MENU_OPTIONS)
         {
-            if(Theremin.Menu == Main)
-            {
-                if(Theremin.LastPressedKey == 4)
-                {
-                    if(Theremin.Flags.TimeDateScroll)
-                    {
-                        Theremin.Flags.TimeDateScroll = false;
-                        ClearDate();
-                    }
-                    else
-                    {
-                        Theremin.Flags.TimeDateScroll = true;
-                    }
-
-                    Theremin.LastPressedKey = 0;
-                }
-            }
-
             MenuState NextMenu = FindNextMenu(Theremin.Menu, Theremin.LastPressedKey);
             if(NextMenu != NullMenu)
             {

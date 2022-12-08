@@ -48,7 +48,6 @@ void DrawString(uint8_t x, uint8_t y, char *buf, uint16_t textColor, uint16_t bk
 void Clock_Init48MHz(void);
 
 void ClearMenu();
-void ClearDate(void);
 void DrawMenuStructure(void);
 void DrawMenuOptions(MenuState menu);
 MenuState FindNextMenu(MenuState menu, uint8_t selection);

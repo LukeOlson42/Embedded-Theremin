@@ -43,7 +43,6 @@ void ThereminInit(void)
     KnobInit();
 
     InitI2C();
-    // SystemLoadPresets();
 
     HeartbeatTimerInit();
     TimeoutTimerInit();
@@ -56,7 +55,7 @@ void ThereminInit(void)
     DrawMenuStructure();
     DrawMenuOptions(Main);
 
-    // SystemSysTickInit();
+    // InitSevenSegment();
 
-    InitSevenSegment();
+    // SystemLoadPresets();
 }

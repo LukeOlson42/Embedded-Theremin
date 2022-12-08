@@ -85,14 +85,12 @@ typedef struct System {
         bool UpdatedPitch;
         bool SystemTimeout;
         bool DebounceKnobSwitch;
-        bool TimeDateScroll;
     } Flags;
 
     float Temperature;
 
     MenuState Menu;
     uint8_t LastPressedKey;
-    int8_t ScrollOffset;
 
     KnobMode KnobState;
 
