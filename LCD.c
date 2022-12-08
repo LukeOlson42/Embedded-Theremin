@@ -4,7 +4,7 @@
 static const MenuOptionsTable_s MenuOptionsTable[OPTIONS_TABLE_SIZE] = {
 
     {Main, 
-    {"Update RTC", "Display Note", "Display Volume", NULL}, 
+    {"Update RTC", "Display Note", "Display Volume", "Toggle Scroll"}, 
     {RTCChange, PitchDisplay, VolumeDisplay, NullMenu},
     false},
 
@@ -120,11 +120,11 @@ void DrawString(uint8_t x, uint8_t y, char *buf, uint16_t textColor, uint16_t bk
 
     for(uint8_t i = 0; i < strlen(buf); i++)
     {
-        if(x > 20)
-        {
-            x = 0;
-            y += size;
-        }
+        // if(x > 25)
+        // {
+        //     x = 0;
+        //     y += size;
+        // }
 
         if(buf[i] == '\n')
         {
@@ -370,20 +370,40 @@ void DisplayRTCData(void)
     ConvertDateToString(DateStr);
     ConvertTimeToString(TimeStr);
 
-    if(MonthStr)
+    if(Theremin.Flags.TimeDateScroll)
     {
-        DrawString(1, DATE_TIME_MENU_Y_OFFSET, MonthStr, 0xffff, 0x0000, 1);
+        ClearDate();
+    }
+    else
+    {
+        Theremin.ScrollOffset = 0;
     }
 
-    DrawString(11, DATE_TIME_MENU_Y_OFFSET, DateStr, 0xffff, 0x0000, 1);
+    if(MonthStr)
+    {
+        DrawString(1 + ((Theremin.Flags.TimeDateScroll) ? Theremin.ScrollOffset : 0), DATE_TIME_MENU_Y_OFFSET, MonthStr, 0xffff, 0x0000, 1);
+    }
+
+    DrawString(11 + ((Theremin.Flags.TimeDateScroll) ? Theremin.ScrollOffset : 0), DATE_TIME_MENU_Y_OFFSET, DateStr, 0xffff, 0x0000, 1);
 
 
     if(DayStr)
     {
-        DrawString(2, DATE_TIME_MENU_Y_OFFSET + 1, DayStr, 0xffff, 0x0000, 1);
+        DrawString(2 + ((Theremin.Flags.TimeDateScroll) ? Theremin.ScrollOffset : 0), DATE_TIME_MENU_Y_OFFSET + 1, DayStr, 0xffff, 0x0000, 1);
     }
 
-    DrawString(12, DATE_TIME_MENU_Y_OFFSET + 1, TimeStr, 0xffff, 0x0000, 1);
+    DrawString(12 + ((Theremin.Flags.TimeDateScroll) ? Theremin.ScrollOffset : 0), DATE_TIME_MENU_Y_OFFSET + 1, TimeStr, 0xffff, 0x0000, 1);
+
+    if(Theremin.Flags.TimeDateScroll)
+    {
+        Theremin.ScrollOffset++;
+
+        if(Theremin.ScrollOffset > 20)
+        {
+            Theremin.ScrollOffset = -20;
+        }
+    }
+
 }
 
 

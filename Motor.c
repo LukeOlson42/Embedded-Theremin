@@ -3,9 +3,9 @@
 
 void MotorInit(void)
 {
-    P7->SEL0 &= ~0xf0;
-    P7->SEL1 &= ~0xf0;
-    P7->DIR  |=  0xf0;
+    P10->SEL0 &= ~0x0F;
+    P10->SEL1 &= ~0x0F;
+    P10->DIR  |=  0x0F;
 }
 
 
@@ -25,7 +25,7 @@ void RotateMotorRightOneStep(void)
             Theremin.MotorBits = 0b00001100;
         }
         
-        P7->OUT = Theremin.MotorBits << 4;
+        P10->OUT = Theremin.MotorBits;
     }
 }
 
@@ -45,7 +45,7 @@ void RotateMotorLeftOneStep(void)
             Theremin.MotorBits = 0b00001001;
         }
 
-        P7->OUT = Theremin.MotorBits >> 4;
+        P10->OUT = Theremin.MotorBits;
     }
 
 }

@@ -13,7 +13,7 @@ System Theremin;
 
 SystemStateExecTable_s SystemStateExecTable[NumberOfStates] = {
     {NormalOperation,  SystemNormalOperation},
-    {      DataInput,        SystemDataInput},
+    {  DataInput, SystemDataInput},
 };
 
 
@@ -33,9 +33,12 @@ void GlobalSystemInit()
     Theremin.Flags.VolumeUp = false;
     Theremin.Flags.VolumeDown = false;
     Theremin.Flags.DebounceKnobSwitch = false;
+    Theremin.Flags.TimeDateScroll = false;
     
     Theremin.KnobState = VolumeChange;
     Theremin.State = NormalOperation;
+
+    Theremin.ScrollOffset = 0;
 
     Theremin.Speaker.Key = Eb;
 
@@ -85,10 +88,15 @@ void EvaluateSystemFlags(void)
 
     if(Theremin.Flags.UpdatedRTCData)
     {
+        // P7->OUT &= ~BIT2;
         RTC_Data data;
         ReadDataFromRTC(&data);
 
         GetSystemTemperature();
+
+        // SendSevenSegmentMessage(Digit1, (uint8_t) Theremin.Temperature / 10);
+        // SendSevenSegmentMessage(Digit2, (uint8_t) Theremin.Temperature % 10);
+
         Theremin.RTC.Time.Second = data.seconds;
         Theremin.RTC.Time.Minute = data.minute;
         Theremin.RTC.Time.Hour = data.hour;
@@ -103,6 +111,7 @@ void EvaluateSystemFlags(void)
 
         SystemKickWatchdog();
 
+        // P7->OUT |= BIT2;
         Theremin.Flags.UpdatedRTCData = false;
     }
 
@@ -146,6 +155,24 @@ void SystemNormalOperation(void)
     {
         if(Theremin.LastPressedKey <= MAX_MENU_OPTIONS)
         {
+            if(Theremin.Menu == Main)
+            {
+                if(Theremin.LastPressedKey == 4)
+                {
+                    if(Theremin.Flags.TimeDateScroll)
+                    {
+                        Theremin.Flags.TimeDateScroll = false;
+                        ClearDate();
+                    }
+                    else
+                    {
+                        Theremin.Flags.TimeDateScroll = true;
+                    }
+
+                    Theremin.LastPressedKey = 0;
+                }
+            }
+
             MenuState NextMenu = FindNextMenu(Theremin.Menu, Theremin.LastPressedKey);
             if(NextMenu != NullMenu)
             {
@@ -256,7 +283,7 @@ void HeartbeatTimerInit(void)
     TIMER32_1->CONTROL = 0xE2; // interrupts, periodic, wrapping
 
     NVIC_EnableIRQ(T32_INT1_IRQn);
-    NVIC_SetPriority(T32_INT1_IRQn, 2);
+    NVIC_SetPriority(T32_INT1_IRQn, 1);
 }
 
 
@@ -266,7 +293,7 @@ void TimeoutTimerInit(void)
     TIMER32_2->CONTROL = 0x62;
 
     NVIC_EnableIRQ(T32_INT2_IRQn);
-    NVIC_SetPriority(T32_INT2_IRQn, 3);
+    NVIC_SetPriority(T32_INT2_IRQn, 2);
 }
 
 void EnableTimeoutTimer(void)
@@ -332,19 +359,6 @@ void SystemLoadPresets(void)
     I2CRead(&Theremin.Speaker.DiscreteVolume, EEPROM_ADDR, 0x01);
 }
 
-// void SystemSysTickInit(void)
-// {
-//     SysTick->CTRL = 0; 
-//     SysTick->LOAD = 48000 * 10;
-//     SysTick->VAL = 0;
-// }
-
-// void SystemSysTickDelay(void)
-// {
-//     SysTick->CTRL = 0x5;
-//     while(!(SysTick->CTRL & 0x00010000));
-//     SysTick->CTRL = 0;
-// }
 
 void PORT1_IRQHandler(void)
 {

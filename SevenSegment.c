@@ -47,17 +47,13 @@ void SendSevenSegmentMessage(SevenSegmentCommand command, uint8_t data)
 {
     while(!(EUSCI_B1->IFG & BIT1));
 
-    P7->OUT &= ~0x04;
+    // P7->OUT &= ~0x04;
 
     EUSCI_B1->TXBUF = (uint8_t) command;
     while(!(EUSCI_B1->IFG & BIT1));
     EUSCI_B1->TXBUF = data;
     while(!(EUSCI_B1->IFG & BIT1));
     while(!(EUSCI_B1->IFG & BIT1));
-
-    // SystemSysTickDelay();
-
-    P7->OUT |= BIT2;
 
     // P1->OUT &= ~BIT0;
 }
