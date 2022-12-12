@@ -3,7 +3,7 @@
 
 void MotorInit(void)
 {
-    P10->SEL0 &= ~0x0F;
+    P10->SEL0 &= ~0x0F;     // pins 10.0-10.3 for motor GPIO
     P10->SEL1 &= ~0x0F;
     P10->DIR  |=  0x0F;
 }
@@ -11,10 +11,10 @@ void MotorInit(void)
 
 void RotateMotorRightOneStep(void)
 {
-    for(uint8_t i = 0; i < MOTOR_STEPS_PER_VOLUME_STEP; i++)
+    for(uint8_t i = 0; i < MOTOR_STEPS_PER_VOLUME_STEP; i++)    // four shifts per step
     {
 
-        Theremin.MotorBits = Theremin.MotorBits >> 1;
+        Theremin.MotorBits = Theremin.MotorBits >> 1;       // shift for half wave drive
 
         if(Theremin.MotorBits == 0b00000001)
         {
@@ -32,9 +32,9 @@ void RotateMotorRightOneStep(void)
 
 void RotateMotorLeftOneStep(void)
 {
-    for(uint8_t i = 0; i < MOTOR_STEPS_PER_VOLUME_STEP; i++)
+    for(uint8_t i = 0; i < MOTOR_STEPS_PER_VOLUME_STEP; i++)    // four shifts per step
     {
-        Theremin.MotorBits = Theremin.MotorBits << 1;
+        Theremin.MotorBits = Theremin.MotorBits << 1;       // shift for half wave drive
 
         if(Theremin.MotorBits == 0b00010010)
         {

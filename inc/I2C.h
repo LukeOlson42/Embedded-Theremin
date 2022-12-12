@@ -31,13 +31,5 @@ void I2CWrite(uint8_t *data, uint8_t periphAddr, uint8_t address);
 void ReadDataFromRTC(RTC_Data* data);
 void WriteDataToRTC(uint8_t data, RTC_Address address);
 
-void UpdateWriteProtect(bool state);
-
-
-
-
-
-
-
 
 #endif

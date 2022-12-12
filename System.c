@@ -4,7 +4,6 @@
 #include "inc/Keypad.h"
 #include "inc/Speaker.h"
 #include "inc/MultipurposeKnob.h"
-#include "inc/SevenSegment.h"
 
 /******Global System Variable*******/
 System Theremin;
@@ -20,7 +19,7 @@ SystemStateExecTable_s SystemStateExecTable[NumberOfStates] = {
 
 void GlobalSystemInit()
 {
-    memset(&Theremin, 0, sizeof(Theremin));
+    memset(&Theremin, 0, sizeof(Theremin));     // set system structure to default values for each variable
 
     Theremin.Speaker.SpeakerVolume = 0.015625;
     Theremin.Speaker.DiscreteVolume = 5;
@@ -52,14 +51,14 @@ void GlobalSystemInit()
 
 void EvaluateSystemFlags(void)
 {
-    if(Theremin.Flags.UpdatedVolume)
+    if(Theremin.Flags.UpdatedVolume)        // if volume needs to be updated, do it
     {
         UpdateVolumeBars();
 
         Theremin.Flags.UpdatedVolume = false;
     }
     
-    if(Theremin.Flags.UpdatedPitch)
+    if(Theremin.Flags.UpdatedPitch)         // if pitch is updated, draw borders to reflect change
     {
         DrawBorders();
 
@@ -73,7 +72,7 @@ void EvaluateSystemFlags(void)
         Theremin.Flags.CalculateDistance = false;
     }
 
-    if(Theremin.Flags.ChangeMenu)
+    if(Theremin.Flags.ChangeMenu)                   // if menu has changed, update LCD to reflect new menu
     {
         ClearMenu();
         DrawMenuOptions(Theremin.Menu);
@@ -86,16 +85,12 @@ void EvaluateSystemFlags(void)
         Theremin.Flags.ChangeMenu = false;
     }
 
-    if(Theremin.Flags.UpdatedRTCData)
+    if(Theremin.Flags.UpdatedRTCData)               // get data from rtc and reflect on LCD
     {
-        // P7->OUT &= ~BIT2;
         RTC_Data data;
         ReadDataFromRTC(&data);
 
         GetSystemTemperature();
-
-        // SendSevenSegmentMessage(Digit1, (uint8_t) Theremin.Temperature / 10);
-        // SendSevenSegmentMessage(Digit2, (uint8_t) Theremin.Temperature % 10);
 
         Theremin.RTC.Time.Second = data.seconds;
         Theremin.RTC.Time.Minute = data.minute;
@@ -107,15 +102,12 @@ void EvaluateSystemFlags(void)
 
         DisplayRTCData();
 
-        // SystemSavePresets();
-
         SystemKickWatchdog();
 
-        // P7->OUT |= BIT2;
         Theremin.Flags.UpdatedRTCData = false;
     }
 
-    if(Theremin.Flags.DebounceKnobSwitch)
+    if(Theremin.Flags.DebounceKnobSwitch)       // debounce the rotary encoder switch
     {
         if(DebounceKnobSwitch())
         {
@@ -138,11 +130,11 @@ void EvaluateSystemState(void)
 {
     for(uint8_t i = 0; i < NumberOfStates; i++)
     {
-        if(Theremin.State == SystemStateExecTable[i].state)
+        if(Theremin.State == SystemStateExecTable[i].state)     // if current system state matches current row in table
         {
             if(SystemStateExecTable[i].funcPtr != NULL)
             {
-                (*SystemStateExecTable[i].funcPtr)();
+                (*SystemStateExecTable[i].funcPtr)();           // execute function pointer of table's current row
             }
         }
     }
@@ -151,9 +143,9 @@ void EvaluateSystemState(void)
 
 void SystemNormalOperation(void)
 {
-    if(ReadKeypad(&Theremin.LastPressedKey))        // put in function pointer table depending on system state, this is NormalOperation
+    if(ReadKeypad(&Theremin.LastPressedKey))        // if keypad activated
     {
-        if(Theremin.LastPressedKey <= MAX_MENU_OPTIONS)
+        if(Theremin.LastPressedKey <= MAX_MENU_OPTIONS) // eliminates unnecessary keypressews
         {
             if(Theremin.Menu == Main)
             {
@@ -173,8 +165,9 @@ void SystemNormalOperation(void)
                 }
             }
 
-            MenuState NextMenu = FindNextMenu(Theremin.Menu, Theremin.LastPressedKey);
-            if(NextMenu != NullMenu)
+            MenuState NextMenu = FindNextMenu(Theremin.Menu, Theremin.LastPressedKey);  // get next menu from table
+
+            if(NextMenu != NullMenu)        // prevents against null errors
             {
                 if(NextMenu >= InputDay && NextMenu < NumberOfMenus)
                 {
@@ -212,7 +205,7 @@ void SystemNormalOperation(void)
 
 void SystemDataInput(void)
 {
-    static uint8_t inputArr[2] = {0, 0};
+    static uint8_t inputArr[2] = {0, 0};        // holds inputted data from keypad
 
     if(Theremin.Flags.SystemTimeout)
     {
@@ -247,7 +240,7 @@ void SystemDataInput(void)
                 '\0'
             };
 
-            DrawString(7, 9, tempString, 0xffff, 0x0000, 4);
+            DrawString(7, 9, tempString, 0xffff, 0x0000, 4);    // draw currently inputted data
 
         }
         else // # is pressed
@@ -260,7 +253,7 @@ void SystemDataInput(void)
             }
 
 
-            WriteDataToRTC(DataToSend, GetDesiredRTCAddress());
+            WriteDataToRTC(DataToSend, GetDesiredRTCAddress()); // update rtc with data entered
 
             Theremin.State = NormalOperation;
             Theremin.Flags.ChangeMenu = true;
@@ -269,7 +262,7 @@ void SystemDataInput(void)
 
             DisableTimeoutTimer();
 
-            memset(inputArr, 0, sizeof(inputArr));
+            memset(inputArr, 0, sizeof(inputArr));      // clear input array
         }
     }
 
@@ -290,7 +283,7 @@ void HeartbeatTimerInit(void)
 void TimeoutTimerInit(void)
 {
     TIMER32_2->LOAD = (uint32_t)((uint32_t) 48000000 * (uint32_t) 60); // one minute
-    TIMER32_2->CONTROL = 0x62;
+    TIMER32_2->CONTROL = 0x62;      // interrupts, oneshot
 
     NVIC_EnableIRQ(T32_INT2_IRQn);
     NVIC_SetPriority(T32_INT2_IRQn, 2);
@@ -315,12 +308,10 @@ void ResetTimeoutTimerCount(void)
 void GetSystemTemperature(void)
 {
     uint8_t tempByte1;
-    uint8_t tempByte2;
 
     I2CRead(&tempByte1, RTC_PERIPH_ADD, (RTC_Address) 0x11);
-    // I2CRead(&tempByte2, RTC_PERIPH_ADD, (RTC_Address) 0x12);
 
-    Theremin.Temperature = tempByte1; //(tempByte1 << 2) | (tempByte2 >> 6);
+    Theremin.Temperature = tempByte1; 
 }
 
 void SystemWatchdogInit(void)
@@ -329,7 +320,7 @@ void SystemWatchdogInit(void)
 
     P1->SEL0 &=~ BIT4;
     P1->SEL1 &=~ BIT4;
-    P1->DIR  &=~ BIT4;
+    P1->DIR  &=~ BIT4;      // set up test switch as pull up input with interrupts on falling edge
     P1->REN  |=  BIT4;
     P1->OUT  |=  BIT4;
     P1->IES  |=  BIT4;

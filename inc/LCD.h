@@ -67,10 +67,4 @@ void DrawBorders(void);
 RTC_Address GetDesiredRTCAddress();
 
 
-
-
-
-
-
-
 #endif

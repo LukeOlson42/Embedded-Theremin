@@ -11,12 +11,11 @@ static const KeyChangeTable_s KeyChangeTable[] = {
 void SpeakerInit()
 {
     TIMER_A2->CTL = 0x0214;
-    TIMER_A2->CCR[0] = 10 * 3000;
+    TIMER_A2->CCR[0] = 1;
     TIMER_A2->CCR[1] = 1;
     TIMER_A2->CCTL[1] = TIMER_A_CCTLN_OUTMOD_7;
 
-    // init p5.6 as LED output
-    P5->SEL0 |=  BIT6;
+    P5->SEL0 |=  BIT6;  // set output pin for speaker
     P5->SEL1 &= ~BIT6;
     P5->DIR  |=  BIT6;
 }
@@ -53,7 +52,7 @@ static float SpeakerGetKeyBasePitch(void)
 {
     for(uint8_t i = 0; i < NumberOfKeys; i++)
     {
-        if(KeyChangeTable[i].Key == Theremin.Speaker.Key)
+        if(KeyChangeTable[i].Key == Theremin.Speaker.Key)   // if key in current table row matches system key
         {
             return KeyChangeTable[i].baseFrequency;
         }
@@ -68,23 +67,23 @@ void OutputPitch()
 
     float baseFrequency = SpeakerGetKeyBasePitch();
 
-    static const uint8_t stepData[8] = {0, 2, 4, 5, 7, 9, 11, 12};
-    static const float TwelfthRootOfTwo = 1.05946;
+    static const uint8_t stepData[8] = {0, 2, 4, 5, 7, 9, 11, 12};  // number of half steps for each note in major scale
+    static const float TwelfthRootOfTwo = 1.05946;                  // constant used in calculation
     float NoteDifference = TwelfthRootOfTwo;
 
     float pitchOffset = Theremin.Temperature / 23.f;
 
-    if(previousPitch != Theremin.Speaker.SensorDistanceInches)
+    if(previousPitch != Theremin.Speaker.SensorDistanceInches)  // only change pitch if neeeded
     {
         Theremin.Flags.UpdatedPitch = true;
     }
 
-    if(Theremin.Speaker.SensorDistanceInches >= 3 && Theremin.Speaker.SensorDistanceInches <= 10)
+    if(Theremin.Speaker.SensorDistanceInches >= 3 && Theremin.Speaker.SensorDistanceInches <= 10)    // keeps sound outputting only if within range
     {
         previousPitch = Theremin.Speaker.SensorDistanceInches;
         Theremin.Speaker.CurrentNote = Theremin.Speaker.SensorDistanceInches - 3;
 
-        if(Theremin.Speaker.CurrentNote == 0)
+        if(Theremin.Speaker.CurrentNote == 0)       // the pow() function is not included in this toolchain, this is how it was done manually
         {
             NoteDifference = 1;
         }
@@ -96,19 +95,19 @@ void OutputPitch()
             }
         }
 
-        Theremin.Speaker.NoteRelativeToKey = Theremin.Speaker.Key + stepData[Theremin.Speaker.CurrentNote];
+        Theremin.Speaker.NoteRelativeToKey = Theremin.Speaker.Key + stepData[Theremin.Speaker.CurrentNote]; // shifts the note up by number of half steps needed
 
-        if(Theremin.Speaker.NoteRelativeToKey > 11)
+        if(Theremin.Speaker.NoteRelativeToKey > 11)     // prevents segmentation faults and index out of bounds errors
         {
             Theremin.Speaker.NoteRelativeToKey -= 12;
         }
 
-        TIMER_A2->CCR[0] = 3000000 * 1.f / (baseFrequency * NoteDifference * pitchOffset);
+        TIMER_A2->CCR[0] = 3000000 * 1.f / (baseFrequency * NoteDifference * pitchOffset);  // outputs desired frequency
     }
     else
     {
         previousPitch = 0;
-        TIMER_A2->CCR[0] = 0;
+        TIMER_A2->CCR[0] = 0;           // outputs nothing if outside of range
     }
 
     TIMER_A2->CCR[1] = TIMER_A2->CCR[0] * Theremin.Speaker.SpeakerVolume;
@@ -136,13 +135,13 @@ void TA0_N_IRQHandler(void)
             }
             else
             {
-                echoPulseFEdge = TIMER_A0->CCR[2];
+                echoPulseFEdge = TIMER_A0->CCR[2]; // captures falling edge time
 
                 trigToEchoPeriod = echoPulseFEdge - echoPulseREdge;
 
-                Theremin.Speaker.SensorDistanceInches = trigToEchoPeriod * PERIOD_TO_INCHES_RATIO;
+                Theremin.Speaker.SensorDistanceInches = trigToEchoPeriod * PERIOD_TO_INCHES_RATIO; // converts to inches
 
-                Theremin.Flags.CalculateDistance = true;
+                Theremin.Flags.CalculateDistance = true;    // sets corresponding flag
                 risingEdge = true;
             }
         }

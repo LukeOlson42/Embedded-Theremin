@@ -9,8 +9,6 @@
 #include <math.h>
 #include "msp.h"
 
-// add any defines
-
 #define CLOCK_SPEED_MHZ 48
 #define CYCLES_PER_MS (CLOCK_SPEED_MHZ * 1000)
 

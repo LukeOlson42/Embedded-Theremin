@@ -20,11 +20,6 @@ void I2CRead(uint8_t *data, uint8_t periphAddr, uint8_t address)
 
     EUSCI_B0->I2CSA = periphAddr;
 
-    // if(((periphAddr & 0b01111000) >> 3) == 0b00001010)
-    // {
-    //     UpdateWriteProtect(true);
-    // }
-
     EUSCI_B0->CTLW0 |= 0x0010; // transmit mode
     EUSCI_B0->CTLW0 |= 0x0002; // start condition
 
@@ -46,8 +41,6 @@ void I2CRead(uint8_t *data, uint8_t periphAddr, uint8_t address)
     *data = EUSCI_B0->RXBUF; // get data from rxbuf
 
     while(EUSCI_B0->CTLW0 & 0x04); // wait for stop to finish
-
-    // UpdateWriteProtect(false);
 }
 
 void I2CWrite(uint8_t *data, uint8_t periphAddr, uint8_t address)
@@ -55,11 +48,6 @@ void I2CWrite(uint8_t *data, uint8_t periphAddr, uint8_t address)
     InitI2C();
 
     EUSCI_B0->I2CSA  = periphAddr;
-
-    // if(((periphAddr & 0b01111000) >> 3) == 0b00001010)
-    // {
-    //     UpdateWriteProtect(true);
-    // }
 
     EUSCI_B0->CTLW0 |= 0x0010; // transmit mode
     EUSCI_B0->CTLW0 |= 0x0002; // start condition
@@ -77,8 +65,6 @@ void I2CWrite(uint8_t *data, uint8_t periphAddr, uint8_t address)
     EUSCI_B0->CTLW0 |= 0x0004; // send stop condition
 
     while(EUSCI_B0->CTLW0 & 0x04);
-
-    // UpdateWriteProtect(false);
 }
 
 void WriteDataToRTC(uint8_t data, RTC_Address address)
@@ -104,19 +90,4 @@ void ReadDataFromRTC(RTC_Data* data)
     data->month = ((tempData[5] & 0x10) >> 4) * 10 + (tempData[5] & 0x0F);
     data->year = ((tempData[6] & 0xF0) >> 4) * 10 + (tempData[6] & 0x0F);
 }
-
-
-
-void UpdateWriteProtect(bool state)
-{
-    if(!state)
-    {
-        P1->OUT |= BIT5;
-    }
-    else
-    {
-        P1->OUT &= ~BIT5;
-    }
-}
-
 

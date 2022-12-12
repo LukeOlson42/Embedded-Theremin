@@ -118,14 +118,8 @@ void DrawString(uint8_t x, uint8_t y, char *buf, uint16_t textColor, uint16_t bk
 {
     if(y>15) return;
 
-    for(uint8_t i = 0; i < strlen(buf); i++)
+    for(uint8_t i = 0; i < strlen(buf); i++)    // draws a string to the screen at a specific location
     {
-        // if(x > 25)
-        // {
-        //     x = 0;
-        //     y += size;
-        // }
-
         if(buf[i] == '\n')
         {
             y += size;
@@ -180,23 +174,24 @@ void LCDInit(void)
 
 void DrawMenuStructure(void)
 {
-    ST7735_DrawFastHLine(0, 80, ST7735_TFTWIDTH, 0xffff);
+    ST7735_DrawFastHLine(0, 80, ST7735_TFTWIDTH, 0xffff);       // horizontal line halfway down the screen
 }
 
 
 void DrawMenuOptions(MenuState menu)
 {
     char OptionStringHeader[3] = "1)";
+
     if(Theremin.State == DataInput)
     {
-        strcpy(OptionStringHeader, "#)");
+        strcpy(OptionStringHeader, "#)");       // changes from number pad to # sign to confirm
     }
 
-    for(uint8_t i = 0; i < OPTIONS_TABLE_SIZE; i++)
+    for(uint8_t i = 0; i < OPTIONS_TABLE_SIZE; i++) // iterate through table
     {
-        if(MenuOptionsTable[i].Menu == menu)
+        if(MenuOptionsTable[i].Menu == menu)        // if menu in table row matches current system menu
         {
-            for(uint8_t j = 0; j < MAX_MENU_OPTIONS; j++)
+            for(uint8_t j = 0; j < MAX_MENU_OPTIONS; j++)   
             {
                 if(Theremin.State == DataInput)
                 {
@@ -205,7 +200,7 @@ void DrawMenuOptions(MenuState menu)
                         OptionStringHeader[0] = '*';
                     }
                 }
-                if(MenuOptionsTable[i].MenuOptions[j] != NULL)
+                if(MenuOptionsTable[i].MenuOptions[j] != NULL)  // print all non-null menu options
                 {
                     uint8_t xOffset = ((MenuOptionsTable[i].LargeNumber) ? LARGE_MENU_X_OFFSET : 0);
                     uint8_t yOffset = ((MenuOptionsTable[i].LargeNumber) ? LARGE_MENU_Y_OFFSET : 0);
@@ -224,7 +219,7 @@ void DrawMenuOptions(MenuState menu)
 
 MenuState FindNextMenu(MenuState menu, uint8_t selection)
 {
-    for(uint8_t i = 0; i < OPTIONS_TABLE_SIZE; i++)
+    for(uint8_t i = 0; i < OPTIONS_TABLE_SIZE; i++)     // iterate through menu options table to find reference to next menu
     {
         if(MenuOptionsTable[i].Menu == menu)
         {
@@ -232,7 +227,7 @@ MenuState FindNextMenu(MenuState menu, uint8_t selection)
         }
     }
 
-    return NullMenu;
+    return NullMenu;                                    // default to "null"
 }
 
 void ClearMenu(void)
@@ -245,7 +240,7 @@ void ClearDate(void)
     ST7735_FillRect(0, 0, ST7735_TFTWIDTH, ST7735_TFTHEIGHT / 2 - 1, 0x0000); // +1 offset prevents erasure of horizontal line
 }
 
-void DisplayVolumeBars()
+void DisplayVolumeBars()    // outputs volume bars initially
 {
     for(uint8_t i = 0; i < Theremin.Speaker.DiscreteVolume; i++)
     {
@@ -259,13 +254,13 @@ void UpdateVolumeBars()
     {
         uint8_t BarPosition = Theremin.Speaker.DiscreteVolume - 1;
 
-        if(Theremin.Flags.VolumeDown)
+        if(Theremin.Flags.VolumeDown)       // removes one bar
         {
             BarPosition++;
             ST7735_FillRect(VOLUME_BARS_X + (VOLUME_BARS_WIDTH + VOLUME_BARS_SEPARATION) * BarPosition, VOLUME_BARS_Y, VOLUME_BARS_WIDTH, VOLUME_BARS_HEIGHT, 0x0000);
             Theremin.Flags.VolumeDown = false;
         }
-        if(Theremin.Flags.VolumeUp)
+        if(Theremin.Flags.VolumeUp)         // adds one bar
         {
             ST7735_FillRect(VOLUME_BARS_X + (VOLUME_BARS_WIDTH + VOLUME_BARS_SEPARATION) * BarPosition, VOLUME_BARS_Y, VOLUME_BARS_WIDTH, VOLUME_BARS_HEIGHT, 0xffff);
             Theremin.Flags.VolumeUp = false;
@@ -279,7 +274,7 @@ void UpdateDrawnPitch()
     {
         for(uint8_t i = 0; i < 12; i++)
         {
-            if(KeyStringTable[i].key == Theremin.Speaker.NoteRelativeToKey)
+            if(KeyStringTable[i].key == Theremin.Speaker.NoteRelativeToKey)         // iterate through table to find key matching the system's current note
             {
                 DrawString(9, 10, KeyStringTable[i].string, 0xffff, 0x0000, 4);
             }
@@ -289,7 +284,7 @@ void UpdateDrawnPitch()
 
 static char* GetDayString(DayOfWeek day)
 {
-    for(uint8_t i = Sunday; i <= Saturday; i++)
+    for(uint8_t i = Sunday; i <= Saturday; i++)             // iterate through table to find corresponding string for system's day of week
     {
         if(DayTable[i].day == day)
         {
@@ -300,7 +295,7 @@ static char* GetDayString(DayOfWeek day)
     return NULL;
 }
 
-static char* GetMonthString(MonthOfYear month)
+static char* GetMonthString(MonthOfYear month)              // iterate through table to find corresponding string for system's month
 {
     for(uint8_t i = January; i <= December; i++)
     {
@@ -313,13 +308,13 @@ static char* GetMonthString(MonthOfYear month)
     return NULL;
 }
 
-static void ConvertDateToString(char* dateString)
+static void ConvertDateToString(char* dateString)           // converts system's date data to a string
 {
     uint8_t date = Theremin.RTC.CalendarDate.Date;
     uint16_t year = Theremin.RTC.CalendarDate.Year;
 
-    char tempString[] = {
-        '0' + date / 10,
+    char tempString[] = {       // this compiler toolchain does not have stdio, so this is 
+        '0' + date / 10,        // the manual version of sprintf
         '0' + date % 10,
         ',',
         ' ',
@@ -329,11 +324,6 @@ static void ConvertDateToString(char* dateString)
         '0' + year % 10,
         '\0'
     };
-
-    if(tempString[4] == '1')
-    {
-        P1->OUT |= BIT0;
-    }
 
     strcpy(dateString, tempString);
 }
@@ -345,8 +335,8 @@ static void ConvertTimeToString(char* timeString)
     uint8_t minute = Theremin.RTC.Time.Minute;
     uint8_t seconds = Theremin.RTC.Time.Second;
 
-    char tempString[] = {
-        '0' + hour / 10,
+    char tempString[] = {       // compiler toolchain does not have sprintf, 
+        '0' + hour / 10,        // this is manual method
         '0' + hour % 10,
         ':',
         '0' + minute / 10,
@@ -362,7 +352,7 @@ static void ConvertTimeToString(char* timeString)
 
 void DisplayRTCData(void)
 {
-    char* MonthStr = GetMonthString(Theremin.RTC.CalendarDate.Month);
+    char* MonthStr = GetMonthString(Theremin.RTC.CalendarDate.Month);   // get corresponding strings
     char* DayStr = GetDayString(Theremin.RTC.CalendarDate.Day);
     char DateStr[] = "00, 2000";
     char TimeStr[] = "00:00:00";
@@ -379,7 +369,7 @@ void DisplayRTCData(void)
         Theremin.ScrollOffset = 0;
     }
 
-    if(MonthStr)
+    if(MonthStr)        // if month is not null (no errors)
     {
         DrawString(1 + ((Theremin.Flags.TimeDateScroll) ? Theremin.ScrollOffset : 0), DATE_TIME_MENU_Y_OFFSET, MonthStr, 0xffff, 0x0000, 1);
     }
@@ -387,14 +377,14 @@ void DisplayRTCData(void)
     DrawString(11 + ((Theremin.Flags.TimeDateScroll) ? Theremin.ScrollOffset : 0), DATE_TIME_MENU_Y_OFFSET, DateStr, 0xffff, 0x0000, 1);
 
 
-    if(DayStr)
+    if(DayStr)          // if day is not null (no errors)
     {
         DrawString(2 + ((Theremin.Flags.TimeDateScroll) ? Theremin.ScrollOffset : 0), DATE_TIME_MENU_Y_OFFSET + 1, DayStr, 0xffff, 0x0000, 1);
     }
 
     DrawString(12 + ((Theremin.Flags.TimeDateScroll) ? Theremin.ScrollOffset : 0), DATE_TIME_MENU_Y_OFFSET + 1, TimeStr, 0xffff, 0x0000, 1);
 
-    if(Theremin.Flags.TimeDateScroll)
+    if(Theremin.Flags.TimeDateScroll)       // updates position if scrolling
     {
         Theremin.ScrollOffset++;
 
@@ -411,35 +401,36 @@ static uint16_t GetDesiredColor(void)
 {
     for(uint8_t i = 0; i <= 7; i++)
     {
-        if(Theremin.Speaker.CurrentNote == i)
+        if(Theremin.Speaker.CurrentNote == i)       // iterate through table to find LED bitmask that matches system's current note
         {
             P8->OUT = LEDAndBorderTable[i].LEDPinBitmask >> 3;
+
             return LEDAndBorderTable[i].LCDColorData;
         }
     }
 
-    return 0x0000;
+    return 0x0000;      // return nothing by default
 }
 
 
 void InitLEDs(void)
 {
-    P8->SEL0 &= ~(0xE0 >> 3);
-    P8->SEL1 &= ~(0xE0 >> 3);
-    P8->DIR |= (0xE0 >> 3);
+    P8->SEL0 &= ~0xE0;  // LEDs on P8.5-P8.7
+    P8->SEL1 &= ~0xE0;
+    P8->DIR |= 0xE0;
 }
 
 void DrawBorders(void)
 {
     uint16_t borderColor = GetDesiredColor();
 
-    if(Theremin.Speaker.SensorDistanceInches > 18 || Theremin.Speaker.SensorDistanceInches < 3)
+    if(Theremin.Speaker.SensorDistanceInches > 18 || Theremin.Speaker.SensorDistanceInches < 3) // if outside of range, draw nothing
     {
         borderColor = 0x0000;
         P8->OUT = 0;
     }
 
-    ST7735_FillRect(0, 0, 2, ST7735_TFTHEIGHT, borderColor);
+    ST7735_FillRect(0, 0, 2, ST7735_TFTHEIGHT, borderColor);        // update border color
     ST7735_FillRect(0, 0, ST7735_TFTWIDTH, 2, borderColor);
     ST7735_FillRect(ST7735_TFTWIDTH - 2, 0, 2, ST7735_TFTHEIGHT, borderColor);
     ST7735_FillRect(0, ST7735_TFTHEIGHT - 2, ST7735_TFTWIDTH, 2, borderColor);
@@ -449,7 +440,7 @@ RTC_Address GetDesiredRTCAddress()
 {
     for(uint8_t i = 0; i < RTCEnd; i++)
     {
-        if(RTCDataLoadingTable[i].menu == Theremin.Menu)
+        if(RTCDataLoadingTable[i].menu == Theremin.Menu)        // iterate through table to find address needed for menu option chosen
         {
             return RTCDataLoadingTable[i].address;
         }

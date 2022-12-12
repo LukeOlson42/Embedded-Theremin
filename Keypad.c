@@ -3,7 +3,7 @@
 
 void KeypadInit(void)
 {
-    P4->SEL0 &= ~0xFE;
+    P4->SEL0 &= ~0xFE;  // set up on P4.1-4.7
     P4->SEL1 &= ~0xFE;
     P4->DIR  &= ~0xFE;
 
@@ -17,7 +17,7 @@ uint16_t ReadKeypad(uint8_t *keyValue)
     uint16_t row = 0;
     uint8_t i = 0;
 
-    for(i = 0; i < 3; i++)
+    for(i = 0; i < 3; i++)  // iterate through columns
     {
         P4->DIR  = 0x00;
         P4->DIR |=  BIT(5 + i);
@@ -40,7 +40,7 @@ uint16_t ReadKeypad(uint8_t *keyValue)
         return 0;
     }
 
-    switch(row)
+    switch(row)     // converts combination to keypad's number
     {
     case 0x1C:
         *keyValue = i + 1;
@@ -59,7 +59,7 @@ uint16_t ReadKeypad(uint8_t *keyValue)
         break;
     }
 
-    if(*keyValue == 10)
+    if(*keyValue == 10)     // special cases
     {
         *keyValue = '*';
     }
